@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Add new Bock rounds to the game</h1>
+
+    <h3>Current Bock rounds: {{ currentBockRounds }}</h3>
+
+    {{ form_start(bockForm) }}
+    {{ form_widget(bockForm) }}
+    {{ form_end(bockForm) }}
+    <br>
+    <br>
+    <a href="{{ path('app_doko_enterpoints') }}">Enter points</a>
+    <br>
+    <a href="{{ path('app_doko_index') }}">Back to homepage</a>
+{% endblock %}

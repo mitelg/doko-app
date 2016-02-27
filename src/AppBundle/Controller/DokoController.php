@@ -2,6 +2,7 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\Entity\Game;
 use AppBundle\Entity\Player;
 use Doctrine\ORM\EntityManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -47,7 +48,7 @@ class DokoController extends Controller
 
         $playerForm->handleRequest($request);
 
-        if ($playerForm->isSubmitted() && $playerForm->isValid()) {
+        if ($playerForm->isValid()) {
             $this->getEm()->persist($player);
             $this->getEm()->flush();
 
@@ -82,15 +83,25 @@ class DokoController extends Controller
     public function enterPointsAction(Request $request)
     {
         $players = $this->getPlayers();
-
         $playersArray = [];
-
         foreach ($players as $player) {
             $playersArray[$player->getName()] = $player->getId();
         }
 
+        $game = $this->getGame();
+        if (empty($game)) {
+            $bockRound = false;
+        } else {
+            if ($game->getBockRounds() > 0) {
+                $bockRound = true;
+            } else {
+                $bockRound = false;
+            }
+        }
+
         $pointsForm = $this->createFormBuilder()
             ->add('points', NumberType::class, ['label' => 'Points', 'required' => true])
+            ->add('bockRound', CheckboxType::class, ['label' => 'Bock round?', 'required' => false, 'data' => $bockRound])
             ->add('player1', ChoiceType::class, ['label' => 'Player 1', 'choices' => $playersArray, 'required' => true])
             ->add('player1win', CheckboxType::class, ['label' => 'Win?', 'required' => false])
             ->add('player2', ChoiceType::class, ['label' => 'Player 2', 'choices' => $playersArray, 'required' => true])
@@ -145,6 +156,51 @@ class DokoController extends Controller
     }
 
     /**
+     * @Route("/addBockRounds")
+     * @param Request $request
+     * @return Response
+     */
+    public function addBockRoundsAction(Request $request)
+    {
+        $game = $this->getGame();
+
+        $bockForm = $this->createFormBuilder()
+            ->add('amount', NumberType::class, ['label' => 'Amount of Bock rounds to add'])
+            ->add('save', SubmitType::class, ['label' => 'Add new Bock rounds'])
+            ->getForm();
+
+        $bockForm->handleRequest($request);
+
+        if ($bockForm->isValid()) {
+            $data = $bockForm->getData();
+            $bockRoundsAmount = $data['amount'];
+            if (empty($game)) {
+                $game = new Game();
+                $game->setBockRounds($bockRoundsAmount);
+                $this->getEm()->persist($game);
+            }
+
+            $newBockRoundsAmount = $game->getBockRounds() + $bockRoundsAmount;
+            $game->setBockRounds($newBockRoundsAmount);
+
+            $this->getEm()->flush();
+
+            return $this->redirectToRoute('app_doko_addbockrounds');
+        }
+
+        if (empty($game)) {
+            $currentBockRounds = 0;
+        } else {
+            $currentBockRounds = $game->getBockRounds();
+        }
+
+        return $this->render(
+            'index/add_bock_rounds.html.twig',
+            ['bockForm' => $bockForm->createView(), 'currentBockRounds' => $currentBockRounds]
+        );
+    }
+
+    /**
      * @return EntityManager
      */
     private function getEm()
@@ -190,9 +246,21 @@ class DokoController extends Controller
     private function prepareData(array $getData)
     {
         $playerIds = [];
-
         $winners = [];
         $losers = [];
+        $points = $points = $getData['points'];
+
+        if ($getData['bockRound']) {
+            $points = $points * 2;
+            $game = $this->getGame();
+
+            if (!empty($game)) {
+                $newBockRounds = $game->getBockRounds() - 1;
+                $game->setBockRounds($newBockRounds);
+                $this->getEm()->flush();
+            }
+        }
+
         for ($i = 1; $i <= 4; $i++) {
             $playerId = $getData['player' . $i];
             if (in_array($playerId, $playerIds)) {
@@ -201,11 +269,9 @@ class DokoController extends Controller
             $playerIds[] = $playerId;
 
             if ($getData['player' . $i . 'win']) {
-                $points = $getData['points'];
                 $winners[] = ['playerId' => $playerId, 'points' => $points];
             } else {
-                $points = $getData['points'] * -1;
-                $losers[] = ['playerId' => $getData['player' . $i], 'points' => $points];
+                $losers[] = ['playerId' => $getData['player' . $i], 'points' => $points * -1];
             }
         }
 
@@ -223,6 +289,21 @@ class DokoController extends Controller
             return array_merge($winners, $losers);
         } else {
             return -2;
+        }
+    }
+
+    /**
+     * @return Game|array
+     */
+    private function getGame()
+    {
+        $gameRepo = $this->getEm()->getRepository('AppBundle:Game');
+        $game = $gameRepo->findAll();
+
+        if (empty($game)) {
+            return $game;
+        } else {
+            return $game[0];
         }
     }
 }
