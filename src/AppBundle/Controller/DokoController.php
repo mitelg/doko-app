@@ -33,6 +33,8 @@ class DokoController extends Controller
     }
 
     /**
+     * creates a new player
+     *
      * @Route("/createPlayer")
      * @param Request $request
      * @return Response
@@ -62,6 +64,8 @@ class DokoController extends Controller
     }
 
     /**
+     * shows points of all players
+     *
      * @Route("/showPoints")
      * @return Response
      */
@@ -76,6 +80,8 @@ class DokoController extends Controller
     }
 
     /**
+     * enter a new game with its points
+     *
      * @Route("/enterPoints")
      * @param Request $request
      * @return Response
@@ -88,6 +94,7 @@ class DokoController extends Controller
             $playersArray[$player->getName()] = $player->getId();
         }
 
+        // check for bock rounds, if set points get doubled
         $game = $this->getGame();
         if (empty($game)) {
             $bockRound = false;
@@ -101,24 +108,33 @@ class DokoController extends Controller
 
         $pointsForm = $this->createFormBuilder()
             ->add('points', NumberType::class, ['label' => 'Points', 'required' => true])
-            ->add('bockRound', CheckboxType::class, ['label' => 'Bock round?', 'required' => false, 'data' => $bockRound])
-            ->add('player1', ChoiceType::class, ['label' => 'Player 1', 'choices' => $playersArray, 'required' => true])
-            ->add('player1win', CheckboxType::class, ['label' => 'Win?', 'required' => false])
-            ->add('player2', ChoiceType::class, ['label' => 'Player 2', 'choices' => $playersArray, 'required' => true])
-            ->add('player2win', CheckboxType::class, ['label' => 'Win?', 'required' => false])
-            ->add('player3', ChoiceType::class, ['label' => 'Player 3', 'choices' => $playersArray, 'required' => true])
-            ->add('player3win', CheckboxType::class, ['label' => 'Win?', 'required' => false])
-            ->add('player4', ChoiceType::class, ['label' => 'Player 4', 'choices' => $playersArray, 'required' => true])
-            ->add('player4win', CheckboxType::class, ['label' => 'Win?', 'required' => false])
-            ->add('save', SubmitType::class, ['label' => 'Save points'])
-            ->add('saveAndNew', SubmitType::class, ['label' => 'Save points and enter new'])
-            ->getForm();
+            ->add('bockRound', CheckboxType::class, [
+                'label' => 'Bock round?',
+                'required' => false,
+                'data' => $bockRound
+            ]);
+
+        // create four players
+        for ($i = 1; $i <= 4; $i++) {
+            $pointsForm->add('player' . $i, ChoiceType::class, [
+                'label' => 'Player ' . $i,
+                'choices' => $playersArray,
+                'required' => true
+            ]);
+            $pointsForm->add('player' . $i . 'win', CheckboxType::class, ['label' => 'Win?', 'required' => false]);
+        }
+
+        $pointsForm->add('save', SubmitType::class, ['label' => 'Save points'])
+            ->add('saveAndNew', SubmitType::class, ['label' => 'Save points and enter new']);
+
+        $pointsForm = $pointsForm->getForm();
 
         $pointsForm->handleRequest($request);
 
         if ($pointsForm->isValid()) {
             $data = $this->prepareData($pointsForm->getData());
 
+            // if given data is not valid, throw several form errors and redirect to action again
             if (!is_array($data)) {
                 if ($data == -1) {
                     $error = new FormError('There must be at least one winner');
@@ -136,6 +152,7 @@ class DokoController extends Controller
                 );
             }
 
+            // if data is okay, save points to database
             foreach ($data as $item) {
                 $player = $this->getPlayerById($item['playerId']);
                 $newPoints = $player->getPoints() + $item['points'];
@@ -156,6 +173,8 @@ class DokoController extends Controller
     }
 
     /**
+     * add new Bock rounds
+     *
      * @Route("/addBockRounds")
      * @param Request $request
      * @return Response
@@ -174,6 +193,7 @@ class DokoController extends Controller
         if ($bockForm->isValid()) {
             $data = $bockForm->getData();
             $bockRoundsAmount = $data['amount'];
+            // create new game, if there is non
             if (empty($game)) {
                 $game = new Game();
                 $game->setBockRounds($bockRoundsAmount);
@@ -240,6 +260,10 @@ class DokoController extends Controller
     }
 
     /**
+     * prepare the data before saving them in the database
+     * checks for the winners and losers
+     * also checks if given data is valid
+     *
      * @param array $getData
      * @return array|int
      */
@@ -250,6 +274,7 @@ class DokoController extends Controller
         $losers = [];
         $points = $points = $getData['points'];
 
+        // double the points if Bock round
         if ($getData['bockRound']) {
             $points = $points * 2;
             $game = $this->getGame();
@@ -261,9 +286,11 @@ class DokoController extends Controller
             }
         }
 
+        // separate the four players into winners and losers
         for ($i = 1; $i <= 4; $i++) {
             $playerId = $getData['player' . $i];
             if (in_array($playerId, $playerIds)) {
+                // if one player is selected twice, throw error
                 return -3;
             }
             $playerIds[] = $playerId;
@@ -276,18 +303,22 @@ class DokoController extends Controller
         }
 
         if (count($winners) == 0) {
+            // if there is no winner selected, throw error
             return -1;
         } elseif (count($winners) == 1) {
+            // there is only one winner, so he/she gets more points
             $winners[0]['points'] = $winners[0]['points'] * 3;
 
             return array_merge($winners, $losers);
         } elseif (count($winners) == 2) {
             return array_merge($winners, $losers);
         } elseif (count($winners) == 3) {
+            // there is only one loser, so he/she loses more points
             $losers[0]['points'] = $losers[0]['points'] * 3;
 
             return array_merge($winners, $losers);
         } else {
+            // all four players can not be winners
             return -2;
         }
     }
