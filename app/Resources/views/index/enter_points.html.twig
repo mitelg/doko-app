@@ -2,9 +2,9 @@
 
 {% block body %}
     <h1>Enter points</h1>
-    {{ form_start(form) }}
-    {{ form_widget(form) }}
-    {{ form_end(form) }}
+    {{ form_start(pointsForm) }}
+    {{ form_widget(pointsForm) }}
+    {{ form_end(pointsForm) }}
     <br>
     <br>
     <a href="{{ path('app_doko_showpoints') }}">Show points of all players</a>

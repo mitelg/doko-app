@@ -11,6 +11,7 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -39,14 +40,14 @@ class DokoController extends Controller
     {
         $player = new Player();
 
-        $form = $this->createFormBuilder($player)
+        $playerForm = $this->createFormBuilder($player)
             ->add('name', TextType::class)
             ->add('save', SubmitType::class, ['label' => 'Create Player'])
             ->getForm();
 
-        $form->handleRequest($request);
+        $playerForm->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        if ($playerForm->isSubmitted() && $playerForm->isValid()) {
             $this->getEm()->persist($player);
             $this->getEm()->flush();
 
@@ -55,7 +56,7 @@ class DokoController extends Controller
 
         return $this->render(
             'index/create_player.html.twig',
-            ['form' => $form->createView()]
+            ['playerForm' => $playerForm->createView()]
         );
     }
 
@@ -88,7 +89,7 @@ class DokoController extends Controller
             $playersArray[$player->getName()] = $player->getId();
         }
 
-        $form = $this->createFormBuilder()
+        $pointsForm = $this->createFormBuilder()
             ->add('points', NumberType::class, ['label' => 'Points', 'required' => true])
             ->add('player1', ChoiceType::class, ['label' => 'Player 1', 'choices' => $playersArray, 'required' => true])
             ->add('player1win', CheckboxType::class, ['label' => 'Win?', 'required' => false])
@@ -102,10 +103,27 @@ class DokoController extends Controller
             ->add('saveAndNew', SubmitType::class, ['label' => 'Save points and enter new'])
             ->getForm();
 
-        $form->handleRequest($request);
+        $pointsForm->handleRequest($request);
 
-        if ($form->isValid()) {
-            $data = $this->prepareData($form->getData());
+        if ($pointsForm->isValid()) {
+            $data = $this->prepareData($pointsForm->getData());
+
+            if (!is_array($data)) {
+                if ($data == -1) {
+                    $error = new FormError('There must be at least one winner');
+                } elseif ($data == -2) {
+                    $error = new FormError('Four winners are one too many');
+                } else {
+                    $error = new FormError('One player is selected twice');
+                }
+
+                $pointsForm->addError($error);
+
+                return $this->render(
+                    'index/enter_points.html.twig',
+                    ['pointsForm' => $pointsForm->createView()]
+                );
+            }
 
             foreach ($data as $item) {
                 $player = $this->getPlayerById($item['playerId']);
@@ -115,15 +133,14 @@ class DokoController extends Controller
 
             $this->getEm()->flush();
 
-            $nextAction = $form->get('save')->isClicked() ? 'app_doko_showpoints' : 'app_doko_enterpoints';
+            $nextAction = $pointsForm->get('save')->isClicked() ? 'app_doko_showpoints' : 'app_doko_enterpoints';
 
             return $this->redirectToRoute($nextAction);
         }
 
-
         return $this->render(
             'index/enter_points.html.twig',
-            ['form' => $form->createView()]
+            ['pointsForm' => $pointsForm->createView()]
         );
     }
 
@@ -168,20 +185,44 @@ class DokoController extends Controller
 
     /**
      * @param array $getData
-     * @return array
+     * @return array|int
      */
     private function prepareData(array $getData)
     {
-        $preparedData = [];
+        $playerIds = [];
+
+        $winners = [];
+        $losers = [];
         for ($i = 1; $i <= 4; $i++) {
+            $playerId = $getData['player' . $i];
+            if (in_array($playerId, $playerIds)) {
+                return -3;
+            }
+            $playerIds[] = $playerId;
+
             if ($getData['player' . $i . 'win']) {
                 $points = $getData['points'];
+                $winners[] = ['playerId' => $playerId, 'points' => $points];
             } else {
                 $points = $getData['points'] * -1;
+                $losers[] = ['playerId' => $getData['player' . $i], 'points' => $points];
             }
-            $preparedData[] = ['playerId' => $getData['player' . $i], 'points' => $points];
         }
 
-        return $preparedData;
+        if (count($winners) == 0) {
+            return -1;
+        } elseif (count($winners) == 1) {
+            $winners[0]['points'] = $winners[0]['points'] * 3;
+
+            return array_merge($winners, $losers);
+        } elseif (count($winners) == 2) {
+            return array_merge($winners, $losers);
+        } elseif (count($winners) == 3) {
+            $losers[0]['points'] = $losers[0]['points'] * 3;
+
+            return array_merge($winners, $losers);
+        } else {
+            return -2;
+        }
     }
 }
