@@ -1,0 +1,9 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Doko App</h1>
+
+    <a href="{{ path('app_doko_createplayer') }}">Create new player</a>
+    <br>
+    <a href="{{ path('app_doko_showpoints') }}">Show points of all players</a>
+{% endblock %}
