@@ -3,6 +3,22 @@
 {% block body %}
     <h1>Current points of all players</h1>
 
+    <table>
+        <tr>
+            <td  style="border: 1px solid; padding: 10px;"><b>Name</b></td>
+            {% for player in players %}
+                <td  style="border: 1px solid; padding: 10px;">{{ player.name }}</td>
+            {% endfor %}
+        </tr>
+        <tr>
+            <td  style="border: 1px solid; padding: 10px;"><b>Points</b></td>
+            {% for player in players %}
+                <td  style="border: 1px solid; padding: 10px;">{{ player.points }}</td>
+            {% endfor %}
+        </tr>
+    </table>
+
+
     <a href="{{ path('app_doko_index') }}">Back zu homepage</a>
 {% endblock %}
 

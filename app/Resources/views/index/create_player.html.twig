@@ -3,5 +3,11 @@
 {% block body %}
     <h1>Create new player</h1>
 
+    {{ form_start(form) }}
+    {{ form_widget(form) }}
+    {{ form_end(form) }}
+
+    <br>
+    <br>
     <a href="{{ path('app_doko_index') }}">Back zu homepage</a>
 {% endblock %}

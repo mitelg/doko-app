@@ -1,4 +1,6 @@
 doko-app
 ========
 
-A Symfony project created on February 27, 2016, 10:14 am.
+this is a small web app to save points for player of the german game "Doppelkopf"
+
+based on Symfony 3

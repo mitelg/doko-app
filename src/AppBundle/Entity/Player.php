@@ -2,6 +2,7 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Class Player
@@ -24,6 +25,8 @@ class Player
      * @var string
      *
      * @ORM\Column()
+     * @Assert\NotBlank()
+     * @Assert\Length(min="3")
      */
     protected $name;
 
@@ -32,7 +35,7 @@ class Player
      *
      * @ORM\Column(type="integer")
      */
-    protected $points;
+    protected $points = 0;
 
     /**
      * Get id
