@@ -1,7 +1,7 @@
 doko-app
 ========
 
-this is a small web app to save points for player of the german game "Doppelkopf"
+this is a small web app to save points for players of the german game "Doppelkopf"
 
 based on Symfony 3
 
@@ -15,3 +15,8 @@ $ php bin/console doctrine:database:create
 $ php bin/console doctrine:schema:create
 ```
 - call `<your-domain>/doko-app/web/`
+
+# TODO
+
+- extract logic from controller into a service
+- styling of HTML output
