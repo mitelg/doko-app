@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Scoreboard</h1>
+
+    <table class="table table-bordered table-striped">
+        <thead>
+        <tr>
+            <th>Round #</th>
+            {% for player in players %}
+                <th><a href="{{ path('app_doko_getplayerstats', {'playerId': player.id}) }}">{{ player.name }}</a></th>
+            {% endfor %}
+            <th>Points</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for round in rounds %}
+            <tr>
+                <td>{{ round.creationDate | date }}</td>
+                {% for player in players %}
+                    {% set found = false %}
+                    {% for participant in round.participants %}
+                        {% if player.id == participant.player.id %}
+                            <td>{{ participant.points }}</td>
+                            {% set found = true %}
+                        {% endif %}
+                    {% endfor %}
+                    {% if not found %}
+                        <td></td>
+                    {% endif %}
+                {% endfor %}
+                <td>{{ round.points }} {% if round.bock %}<strong>B</strong>{% endif %}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+        <tfoot>
+        <tr>
+            <th>Total</th>
+            {% for player in players %}
+                <th>{{ player.points }}</th>
+            {% endfor %}
+            <th></th>
+        </tr>
+        </tfoot>
+    </table>
+
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+            var data = google.visualization.arrayToDataTable({{ chartData|json_encode|raw }});
+
+            var options = {
+                title: 'History',
+                curveType: 'none',
+                legend: { position: 'bottom' }
+            };
+
+            var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+
+            chart.draw(data, options);
+        }
+    </script>
+
+    <div id="curve_chart" style="width: 900px; height: 500px"></div>
+
+    <a href="{{ path('app_doko_index') }}">Back to homepage</a>
+{% endblock %}

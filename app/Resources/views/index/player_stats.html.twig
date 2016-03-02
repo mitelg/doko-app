@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>{{ player.name }}</h1>
+    <div>
+        Played rounds: {{ rounds|length }}
+    </div>
+
+    <h3>Best Partners</h3>
+    <ol>
+        {% for partner in partners %}
+            <li>{{ partner.name }} with {{ partner.points }} points</li>
+        {% endfor %}
+    </ol>
+    <a href="{{ path('app_doko_index') }}">Back to homepage</a>
+{% endblock %}
