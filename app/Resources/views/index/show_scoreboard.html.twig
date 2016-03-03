@@ -8,7 +8,7 @@
         <tr>
             <th>Round #</th>
             {% for player in players %}
-                <th>{{ player.name }}</th>
+                <th><a href="{{ path('app_doko_getplayerstats', {playerId: player.id}) }}">{{ player.name }}</a></th>
             {% endfor %}
             <th>Points</th>
         </tr>

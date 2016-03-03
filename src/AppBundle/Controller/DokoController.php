@@ -161,6 +161,29 @@ class DokoController extends Controller
     }
 
     /**
+     * Show player stats
+     *
+     * @Route("/playerstats/{playerId}")
+     * @param $playerId
+     * @param Request $request
+     * @return Response
+     */
+    public function getPlayerStats($playerId, Request $request)
+    {
+        $player = $this->getPlayerById($playerId);
+        $player->setPoints($this->getCurrentPoints($player));
+
+        $rounds = $this->getRoundsByPlayer($player);
+
+        $partners = $this->getPartnersOfPlayer($player);
+
+        return $this->render(
+            'index/player_stats.html.twig',
+            ['player' => $player, 'rounds' => $rounds, 'partners' => $partners]
+        );
+    }
+
+    /**
      * calculate the game result before saving it into the database
      * checks for winners and losers
      * also checks if given data is valid
@@ -338,6 +361,37 @@ class DokoController extends Controller
             return 0;
         }
 
-        return $points;
+        return (int) $points;
+    }
+
+    /**
+     * @param Player $player
+     * @return array|Round[]
+     */
+    private function getRoundsByPlayer(Player $player)
+    {
+        $queryBuilder = $this->getEm()->createQueryBuilder()
+            ->select(['round'])
+            ->from('AppBundle:Round', 'round')
+            ->join('round.participants', 'participant')
+            ->andWhere('participant.player = :player')
+            ->setParameter('player', $player);
+
+        return $queryBuilder->getQuery()->getResult();
+    }
+
+    private function getPartnersOfPlayer(Player $player)
+    {
+        $statement = $this->getEm()->getConnection()->prepare('
+          SELECT partnerPlayer.name AS name, SUM(participant.points) AS points FROM participant
+          JOIN participant AS partner ON participant.round_id = participant.round_id AND partner.player_id != :playerId AND participant.points = partner.points
+          JOIN player AS partnerPlayer ON partnerPlayer.id = partner.player_id
+          WHERE participant.player_id = :playerId
+          GROUP BY partner.player_id
+          ORDER BY points DESC');
+
+        $statement->bindValue('playerId', $player->getId());
+        $statement->execute();
+        return $statement->fetchAll();
     }
 }
