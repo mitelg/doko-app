@@ -3,12 +3,12 @@
 {% block body %}
     <h1>Scoreboard</h1>
 
-    <table class="table table-bordered table-striped">
+    <table border="1" cellspacing="0" cellpadding="5">
         <thead>
         <tr>
             <th>Round #</th>
             {% for player in players %}
-                <th><a href="{{ path('app_doko_getplayerstats', {'playerId': player.id}) }}">{{ player.name }}</a></th>
+                <th>{{ player.name }}</th>
             {% endfor %}
             <th>Points</th>
         </tr>
@@ -29,7 +29,12 @@
                         <td></td>
                     {% endif %}
                 {% endfor %}
-                <td>{{ round.points }} {% if round.bock %}<strong>B</strong>{% endif %}</td>
+                <td>
+                    {% if round.bock %}
+                        {{ round.points / 2 }} <strong>B</strong>
+                    {% endif %}
+                    {{ round.points }}
+                </td>
             </tr>
         {% endfor %}
         </tbody>
@@ -43,28 +48,6 @@
         </tr>
         </tfoot>
     </table>
-
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <script type="text/javascript">
-        google.charts.load('current', {'packages':['corechart']});
-        google.charts.setOnLoadCallback(drawChart);
-
-        function drawChart() {
-            var data = google.visualization.arrayToDataTable({{ chartData|json_encode|raw }});
-
-            var options = {
-                title: 'History',
-                curveType: 'none',
-                legend: { position: 'bottom' }
-            };
-
-            var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
-
-            chart.draw(data, options);
-        }
-    </script>
-
-    <div id="curve_chart" style="width: 900px; height: 500px"></div>
 
     <a href="{{ path('app_doko_index') }}">Back to homepage</a>
 {% endblock %}

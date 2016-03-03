@@ -2,7 +2,6 @@
 
 namespace AppBundle\Controller;
 
-use AppBundle\Entity\Game;
 use AppBundle\Entity\Participant;
 use AppBundle\Entity\Player;
 use AppBundle\Entity\Round;
@@ -110,9 +109,6 @@ class DokoController extends Controller
             $participants = new ArrayCollection();
             foreach ($data as $item) {
                 $points = $item['points'];
-                if ($round->isBock()) {
-                    $points *= 2;
-                }
                 $round->setPoints(abs($points));
                 $player = $this->getPlayerById($item['playerId']);
                 $participant = new Participant($round, $player, $points);
@@ -182,13 +178,6 @@ class DokoController extends Controller
         // double the points if Bock round
         if ($formData['bockRound']) {
             $points = $points * 2;
-            $game = $this->getGame();
-
-            if (!empty($game)) {
-                $newBockRounds = $game->getBockRounds() - 1;
-                $game->setBockRounds($newBockRounds);
-                $this->getEm()->flush();
-            }
         }
 
         // separate the four players into winners and losers
@@ -239,20 +228,12 @@ class DokoController extends Controller
             $playersArray[$player->getName()] = $player->getId();
         }
 
-        // check for bock rounds, if set points get doubled
-        $game = $this->getGame();
-        if (!empty($game) && $game->getBockRounds() > 0) {
-            $bockRound = true;
-        } else {
-            $bockRound = false;
-        }
-
         $pointsForm = $this->createFormBuilder()
             ->add('points', NumberType::class, ['label' => 'Points', 'required' => true])
             ->add('bockRound', CheckboxType::class, [
                 'label' => 'Bock round?',
                 'required' => false,
-                'data' => $bockRound
+                'data' => false
             ]);
 
         // create four players
@@ -311,21 +292,6 @@ class DokoController extends Controller
         $player = $playerRepo->find($id);
 
         return $player;
-    }
-
-    /**
-     * @return Game|array
-     */
-    private function getGame()
-    {
-        $gameRepo = $this->getEm()->getRepository('AppBundle:Game');
-        $game = $gameRepo->findAll();
-
-        if (empty($game)) {
-            return $game;
-        } else {
-            return $game[0];
-        }
     }
 
     /**
