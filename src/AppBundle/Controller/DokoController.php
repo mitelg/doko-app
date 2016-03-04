@@ -371,7 +371,7 @@ class DokoController extends Controller
         $statement = $this->getEm()->getConnection()->prepare('
             SELECT partnerPlayer.name AS name, SUM(participant.points) AS points
             FROM participant
-            JOIN participant AS partner ON participant.round_id = participant.round_id
+            JOIN participant AS partner ON partner.round_id = participant.round_id
                 AND partner.player_id != :playerId
                 AND participant.points = partner.points
             JOIN player AS partnerPlayer ON partnerPlayer.id = partner.player_id
