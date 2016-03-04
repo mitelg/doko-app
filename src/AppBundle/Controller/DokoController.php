@@ -111,14 +111,14 @@ class DokoController extends Controller
                 $points = $item['points'];
                 $round->setPoints(abs($points));
                 $player = $this->getPlayerById($item['playerId']);
+                $newPoints = $player->getPoints() + $item['points'];
+                $player->setPoints($newPoints);
                 $participant = new Participant($round, $player, $points);
                 $participants->add($participant);
             }
             $round->setParticipants($participants);
             $this->getEm()->persist($round);
             $this->getEm()->flush();
-
-
 
             $nextAction = $pointsForm->get('save')->isClicked() ? 'app_doko_showscoreboard' : 'app_doko_enterpoints';
 
@@ -135,22 +135,17 @@ class DokoController extends Controller
      * Show scoreboard
      *
      * @Route("/showScoreboard")
-     * @param Request $request
      * @return Response
      */
-    public function showScoreboardAction(Request $request)
+    public function showScoreboardAction()
     {
         $players = $this->getPlayers();
 
         $rounds = $this->getRounds();
 
-        foreach ($players as $player) {
-            $player->setPoints($this->getCurrentPoints($player));
-        }
-
         foreach ($rounds as $round) {
             foreach ($round->getParticipants() as $participant) {
-                $participant->setPoints($this->getCurrentPoints($participant->getPlayer(), $round));
+                $participant->setPoints($this->getPointsForPlayerAndRound($participant->getPlayer(), $round));
             }
         }
 
@@ -165,13 +160,11 @@ class DokoController extends Controller
      *
      * @Route("/playerstats/{playerId}")
      * @param $playerId
-     * @param Request $request
      * @return Response
      */
-    public function getPlayerStats($playerId, Request $request)
+    public function getPlayerStats($playerId)
     {
         $player = $this->getPlayerById($playerId);
-        $player->setPoints($this->getCurrentPoints($player));
 
         $rounds = $this->getRoundsByPlayer($player);
 
@@ -252,20 +245,12 @@ class DokoController extends Controller
         }
 
         $pointsForm = $this->createFormBuilder()
-            ->add('points', NumberType::class, ['label' => 'Points', 'required' => true])
-            ->add('bockRound', CheckboxType::class, [
-                'label' => 'Bock round?',
-                'required' => false,
-                'data' => false
-            ]);
+            ->add('points', NumberType::class, ['label' => 'Points'])
+            ->add('bockRound', CheckboxType::class, ['label' => 'Bock round?', 'required' => false]);
 
         // create four players
         for ($i = 1; $i <= 4; $i++) {
-            $pointsForm->add('player' . $i, ChoiceType::class, [
-                'label' => 'Player ' . $i,
-                'choices' => $playersArray,
-                'required' => true
-            ]);
+            $pointsForm->add('player' . $i, ChoiceType::class, ['label' => 'Player ' . $i, 'choices' => $playersArray]);
             $pointsForm->add('player' . $i . 'win', CheckboxType::class, ['label' => 'Win?', 'required' => false]);
         }
 
@@ -338,22 +323,19 @@ class DokoController extends Controller
 
     /**
      * @param Player $player
-     * @param Round|null $round
+     * @param Round $round
      * @return int
      */
-    private function getCurrentPoints(Player $player, Round $round = null)
+    private function getPointsForPlayerAndRound(Player $player, Round $round)
     {
         $queryBuilder = $this->getEm()->createQueryBuilder()
             ->select('SUM(participant.points)')
             ->from('AppBundle:Participant', 'participant')
             ->join('participant.round', 'round')
             ->andWhere('participant.player = :player')
-            ->setParameter('player', $player);
-
-        if (is_object($round)) {
-            $queryBuilder->andWhere('round.creationDate <= :currentRoundCreationDate')
-                ->setParameter('currentRoundCreationDate', $round->getCreationDate());
-        }
+            ->andWhere('round.creationDate = :currentRoundCreationDate')
+            ->setParameter('player', $player)
+            ->setParameter('currentRoundCreationDate', $round->getCreationDate());
 
         $points = $queryBuilder->getQuery()->getSingleScalarResult();
 
@@ -380,15 +362,22 @@ class DokoController extends Controller
         return $queryBuilder->getQuery()->getResult();
     }
 
+    /**
+     * @param Player $player
+     * @return array
+     */
     private function getPartnersOfPlayer(Player $player)
     {
         $statement = $this->getEm()->getConnection()->prepare('
-          SELECT partnerPlayer.name AS name, SUM(participant.points) AS points FROM participant
-          JOIN participant AS partner ON participant.round_id = participant.round_id AND partner.player_id != :playerId AND participant.points = partner.points
-          JOIN player AS partnerPlayer ON partnerPlayer.id = partner.player_id
-          WHERE participant.player_id = :playerId
-          GROUP BY partner.player_id
-          ORDER BY points DESC');
+            SELECT partnerPlayer.name AS name, SUM(participant.points) AS points
+            FROM participant
+            JOIN participant AS partner ON participant.round_id = participant.round_id
+                AND partner.player_id != :playerId
+                AND participant.points = partner.points
+            JOIN player AS partnerPlayer ON partnerPlayer.id = partner.player_id
+            WHERE participant.player_id = :playerId
+            GROUP BY partner.player_id
+            ORDER BY points DESC');
 
         $statement->bindValue('playerId', $player->getId());
         $statement->execute();

@@ -16,7 +16,7 @@
         <tbody>
         {% for round in rounds %}
             <tr>
-                <td>{{ round.creationDate | date }}</td>
+                <td>{{ loop.index }}) {{ round.creationDate | date("d.m.Y -- H:i") }} Uhr</td>
                 {% for player in players %}
                     {% set found = false %}
                     {% for participant in round.participants %}
@@ -48,6 +48,8 @@
         </tr>
         </tfoot>
     </table>
-
+    <br>
+    <a href="{{ path('app_doko_enterpoints') }}">Enter points</a>
+    <br>
     <a href="{{ path('app_doko_index') }}">Back to homepage</a>
 {% endblock %}
