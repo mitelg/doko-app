@@ -81,6 +81,7 @@ class DokoController extends Controller
         $pointsForm->handleRequest($request);
 
         if ($pointsForm->isValid()) {
+            $pointsOfGame = $pointsForm->getData()['points'];
             $data = $this->calculateGameResult($pointsForm->getData());
 
             // if given data is not valid, throw several form errors and redirect to action again
@@ -104,16 +105,15 @@ class DokoController extends Controller
             $round = new Round();
             $round->setBock($pointsForm->get('bockRound')->getData());
             $round->setCreationDate(new DateTime());
+            $round->setPoints($pointsOfGame);
 
             // if data is okay, save points to database
             $participants = new ArrayCollection();
             foreach ($data as $item) {
-                $points = $item['points'];
-                $round->setPoints(abs($points));
                 $player = $this->getPlayerById($item['playerId']);
                 $newPoints = $player->getPoints() + $item['points'];
                 $player->setPoints($newPoints);
-                $participant = new Participant($round, $player, $points);
+                $participant = new Participant($round, $player, $item['points']);
                 $participants->add($participant);
             }
             $round->setParticipants($participants);
@@ -312,9 +312,10 @@ class DokoController extends Controller
         $queryBuilder = $this->getEm()->createQueryBuilder()
             ->select(['round'])
             ->from('AppBundle:Round', 'round')
-            ->orderBy('round.creationDate', 'DESC')
-            ->setFirstResult($offset)
-            ->setMaxResults($limit);
+            ->orderBy('round.creationDate', 'DESC');
+//              TODO implement pagination
+//            ->setFirstResult($offset)
+//            ->setMaxResults($limit);
 
         $rounds = $queryBuilder->getQuery()->getResult();
 
