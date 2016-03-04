@@ -2,8 +2,11 @@
 
 namespace AppBundle\Controller;
 
-use AppBundle\Entity\Game;
+use AppBundle\Entity\Participant;
 use AppBundle\Entity\Player;
+use AppBundle\Entity\Round;
+use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -65,22 +68,6 @@ class DokoController extends Controller
     }
 
     /**
-     * shows points of all players
-     *
-     * @Route("/showPoints")
-     * @return Response
-     */
-    public function showPointsAction()
-    {
-        $players = $this->getPlayers();
-
-        return $this->render(
-            'index/show_points.html.twig',
-            ['players' => $players]
-        );
-    }
-
-    /**
      * enter a new game with its points
      *
      * @Route("/enterPoints")
@@ -114,16 +101,26 @@ class DokoController extends Controller
                 );
             }
 
-            // if data is okay, save points to database
-            foreach ($data as $item) {
-                $player = $this->getPlayerById($item['playerId']);
-                $newPoints = $player->getPoints() + $item['points'];
-                $player->setPoints($newPoints);
-            }
+            $round = new Round();
+            $round->setBock($pointsForm->get('bockRound')->getData());
+            $round->setCreationDate(new DateTime());
 
+            // if data is okay, save points to database
+            $participants = new ArrayCollection();
+            foreach ($data as $item) {
+                $points = $item['points'];
+                $round->setPoints(abs($points));
+                $player = $this->getPlayerById($item['playerId']);
+                $participant = new Participant($round, $player, $points);
+                $participants->add($participant);
+            }
+            $round->setParticipants($participants);
+            $this->getEm()->persist($round);
             $this->getEm()->flush();
 
-            $nextAction = $pointsForm->get('save')->isClicked() ? 'app_doko_showpoints' : 'app_doko_enterpoints';
+
+
+            $nextAction = $pointsForm->get('save')->isClicked() ? 'app_doko_showscoreboard' : 'app_doko_enterpoints';
 
             return $this->redirectToRoute($nextAction);
         }
@@ -135,50 +132,54 @@ class DokoController extends Controller
     }
 
     /**
-     * add new Bock rounds
+     * Show scoreboard
      *
-     * @Route("/addBockRounds")
+     * @Route("/showScoreboard")
      * @param Request $request
      * @return Response
      */
-    public function addBockRoundsAction(Request $request)
+    public function showScoreboardAction(Request $request)
     {
-        $game = $this->getGame();
+        $players = $this->getPlayers();
 
-        $bockForm = $this->createFormBuilder()
-            ->add('amount', NumberType::class, ['label' => 'Amount of Bock rounds to add'])
-            ->add('save', SubmitType::class, ['label' => 'Add new Bock rounds'])
-            ->getForm();
+        $rounds = $this->getRounds();
 
-        $bockForm->handleRequest($request);
-
-        if ($bockForm->isValid()) {
-            $data = $bockForm->getData();
-            $bockRoundsAmount = $data['amount'];
-            // create new game, if there is non
-            if (empty($game)) {
-                $game = new Game();
-                $game->setBockRounds($bockRoundsAmount);
-                $this->getEm()->persist($game);
-            }
-
-            $newBockRoundsAmount = $game->getBockRounds() + $bockRoundsAmount;
-            $game->setBockRounds($newBockRoundsAmount);
-
-            $this->getEm()->flush();
-
-            return $this->redirectToRoute('app_doko_addbockrounds');
+        foreach ($players as $player) {
+            $player->setPoints($this->getCurrentPoints($player));
         }
 
-        if (empty($game)) {
-            $currentBockRounds = 0;
-        } else {
-            $currentBockRounds = $game->getBockRounds();
+        foreach ($rounds as $round) {
+            foreach ($round->getParticipants() as $participant) {
+                $participant->setPoints($this->getCurrentPoints($participant->getPlayer(), $round));
+            }
         }
 
         return $this->render(
-            'index/add_bock_rounds.html.twig',
-            ['bockForm' => $bockForm->createView(), 'currentBockRounds' => $currentBockRounds]
+            'index/show_scoreboard.html.twig',
+            ['players' => $players, 'rounds' => $rounds]
+        );
+    }
+
+    /**
+     * Show player stats
+     *
+     * @Route("/playerstats/{playerId}")
+     * @param $playerId
+     * @param Request $request
+     * @return Response
+     */
+    public function getPlayerStats($playerId, Request $request)
+    {
+        $player = $this->getPlayerById($playerId);
+        $player->setPoints($this->getCurrentPoints($player));
+
+        $rounds = $this->getRoundsByPlayer($player);
+
+        $partners = $this->getPartnersOfPlayer($player);
+
+        return $this->render(
+            'index/player_stats.html.twig',
+            ['player' => $player, 'rounds' => $rounds, 'partners' => $partners]
         );
     }
 
@@ -200,13 +201,6 @@ class DokoController extends Controller
         // double the points if Bock round
         if ($formData['bockRound']) {
             $points = $points * 2;
-            $game = $this->getGame();
-
-            if (!empty($game)) {
-                $newBockRounds = $game->getBockRounds() - 1;
-                $game->setBockRounds($newBockRounds);
-                $this->getEm()->flush();
-            }
         }
 
         // separate the four players into winners and losers
@@ -257,20 +251,12 @@ class DokoController extends Controller
             $playersArray[$player->getName()] = $player->getId();
         }
 
-        // check for bock rounds, if set points get doubled
-        $game = $this->getGame();
-        if (!empty($game) && $game->getBockRounds() > 0) {
-            $bockRound = true;
-        } else {
-            $bockRound = false;
-        }
-
         $pointsForm = $this->createFormBuilder()
             ->add('points', NumberType::class, ['label' => 'Points', 'required' => true])
             ->add('bockRound', CheckboxType::class, [
                 'label' => 'Bock round?',
                 'required' => false,
-                'data' => $bockRound
+                'data' => false
             ]);
 
         // create four players
@@ -310,11 +296,12 @@ class DokoController extends Controller
      */
     private function getPlayers()
     {
-        $playerRepo = $this->getEm()->getRepository('AppBundle:Player');
+        $builder = $this->getEm()->createQueryBuilder()
+            ->select(['player'])
+            ->from('AppBundle:Player', 'player')
+            ->addOrderBy('player.name', 'ASC');
 
-        $players = $playerRepo->findAll();
-
-        return $players;
+        return $builder->getQuery()->getResult();
     }
 
     /**
@@ -331,17 +318,80 @@ class DokoController extends Controller
     }
 
     /**
-     * @return Game|array
+     * @param int $limit
+     * @param int $offset
+     * @return array|Round[]
      */
-    private function getGame()
+    private function getRounds($limit = 10, $offset = 0)
     {
-        $gameRepo = $this->getEm()->getRepository('AppBundle:Game');
-        $game = $gameRepo->findAll();
+        $queryBuilder = $this->getEm()->createQueryBuilder()
+            ->select(['round'])
+            ->from('AppBundle:Round', 'round')
+            ->orderBy('round.creationDate', 'DESC')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit);
 
-        if (empty($game)) {
-            return $game;
-        } else {
-            return $game[0];
+        $rounds = $queryBuilder->getQuery()->getResult();
+
+        return array_reverse($rounds);
+    }
+
+    /**
+     * @param Player $player
+     * @param Round|null $round
+     * @return int
+     */
+    private function getCurrentPoints(Player $player, Round $round = null)
+    {
+        $queryBuilder = $this->getEm()->createQueryBuilder()
+            ->select('SUM(participant.points)')
+            ->from('AppBundle:Participant', 'participant')
+            ->join('participant.round', 'round')
+            ->andWhere('participant.player = :player')
+            ->setParameter('player', $player);
+
+        if (is_object($round)) {
+            $queryBuilder->andWhere('round.creationDate <= :currentRoundCreationDate')
+                ->setParameter('currentRoundCreationDate', $round->getCreationDate());
         }
+
+        $points = $queryBuilder->getQuery()->getSingleScalarResult();
+
+        if (is_null($points)) {
+            return 0;
+        }
+
+        return (int) $points;
+    }
+
+    /**
+     * @param Player $player
+     * @return array|Round[]
+     */
+    private function getRoundsByPlayer(Player $player)
+    {
+        $queryBuilder = $this->getEm()->createQueryBuilder()
+            ->select(['round'])
+            ->from('AppBundle:Round', 'round')
+            ->join('round.participants', 'participant')
+            ->andWhere('participant.player = :player')
+            ->setParameter('player', $player);
+
+        return $queryBuilder->getQuery()->getResult();
+    }
+
+    private function getPartnersOfPlayer(Player $player)
+    {
+        $statement = $this->getEm()->getConnection()->prepare('
+          SELECT partnerPlayer.name AS name, SUM(participant.points) AS points FROM participant
+          JOIN participant AS partner ON participant.round_id = participant.round_id AND partner.player_id != :playerId AND participant.points = partner.points
+          JOIN player AS partnerPlayer ON partnerPlayer.id = partner.player_id
+          WHERE participant.player_id = :playerId
+          GROUP BY partner.player_id
+          ORDER BY points DESC');
+
+        $statement->bindValue('playerId', $player->getId());
+        $statement->execute();
+        return $statement->fetchAll();
     }
 }

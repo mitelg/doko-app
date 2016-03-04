@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Scoreboard</h1>
+
+    <table border="1" cellspacing="0" cellpadding="5">
+        <thead>
+        <tr>
+            <th>Round #</th>
+            {% for player in players %}
+                <th><a href="{{ path('app_doko_getplayerstats', {playerId: player.id}) }}">{{ player.name }}</a></th>
+            {% endfor %}
+            <th>Points</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for round in rounds %}
+            <tr>
+                <td>{{ round.creationDate | date }}</td>
+                {% for player in players %}
+                    {% set found = false %}
+                    {% for participant in round.participants %}
+                        {% if player.id == participant.player.id %}
+                            <td>{{ participant.points }}</td>
+                            {% set found = true %}
+                        {% endif %}
+                    {% endfor %}
+                    {% if not found %}
+                        <td></td>
+                    {% endif %}
+                {% endfor %}
+                <td>
+                    {% if round.bock %}
+                        {{ round.points / 2 }} <strong>B</strong>
+                    {% endif %}
+                    {{ round.points }}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+        <tfoot>
+        <tr>
+            <th>Total</th>
+            {% for player in players %}
+                <th>{{ player.points }}</th>
+            {% endfor %}
+            <th></th>
+        </tr>
+        </tfoot>
+    </table>
+
+    <a href="{{ path('app_doko_index') }}">Back to homepage</a>
+{% endblock %}
