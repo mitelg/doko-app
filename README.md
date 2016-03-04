@@ -24,3 +24,4 @@ $ php bin/console doctrine:schema:create
 
 - extract logic from controller into a service
 - styling of HTML output
+- create pagination for scoreboard
