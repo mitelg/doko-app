@@ -30,10 +30,10 @@
                     {% endif %}
                 {% endfor %}
                 <td>
-                    {% if round.bock %}
-                        {{ round.points / 2 }} <strong>B</strong>
-                    {% endif %}
                     {{ round.points }}
+                    {% if round.bock %}
+                        <strong>B</strong> {{ round.points * 2 }}
+                    {% endif %}
                 </td>
             </tr>
         {% endfor %}
