@@ -12,7 +12,6 @@
             <li>{{ partner.name }} with {{ partner.points }} points</li>
         {% endfor %}
     </ol>
-    <a href="{{ path('app_doko_showscoreboard') }}">Show scoreboard</a>
-    <br>
-    <a href="{{ path('app_doko_index') }}">Back to homepage</a>
+    <a href="{{ path('app_doko_showscoreboard') }}" class="btn btn-primary">Show scoreboard</a>
+    <a href="{{ path('app_doko_index') }}" class="btn btn-default">Back to homepage</a>
 {% endblock %}

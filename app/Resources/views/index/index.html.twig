@@ -3,9 +3,7 @@
 {% block body %}
     <h1>Doko App</h1>
 
-    <a href="{{ path('app_doko_showscoreboard') }}">Show scoreboard</a>
-    <br>
-    <a href="{{ path('app_doko_enterpoints') }}">Enter points</a>
-    <br>
-    <a href="{{ path('app_doko_createplayer') }}">Create new player</a>
+    <a href="{{ path('app_doko_showscoreboard') }}" class="btn btn-primary">Show scoreboard</a>
+    <a href="{{ path('app_doko_enterpoints') }}" class="btn btn-primary">Enter points</a>
+    <a href="{{ path('app_doko_createplayer') }}" class="btn btn-primary">Create new player</a>
 {% endblock %}

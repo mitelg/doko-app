@@ -3,7 +3,7 @@
 {% block body %}
     <h1>Scoreboard</h1>
 
-    <table border="1" cellspacing="0" cellpadding="5">
+    <table border="1">
         <thead>
         <tr>
             <th>Round #</th>
@@ -49,7 +49,6 @@
         </tfoot>
     </table>
     <br>
-    <a href="{{ path('app_doko_enterpoints') }}">Enter points</a>
-    <br>
-    <a href="{{ path('app_doko_index') }}">Back to homepage</a>
+    <a href="{{ path('app_doko_enterpoints') }}" class="btn btn-primary">Enter points</a>
+    <a href="{{ path('app_doko_index') }}" class="btn btn-default">Back to homepage</a>
 {% endblock %}
