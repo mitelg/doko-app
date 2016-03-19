@@ -3,7 +3,7 @@
 {% block body %}
     <h1>Enter points</h1>
     {{ form_start(pointsForm, {'attr': {'class': 'form-horizontal form-group'}}) }}
-    {% if pointsForm.vars.errors %}
+    {% if not pointsForm.vars.valid %}
         <div class="form-group">
             <div class="col-sm-2"></div>
             <div class="btn-danger col-sm-10">
