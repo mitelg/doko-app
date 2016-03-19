@@ -143,12 +143,6 @@ class DokoController extends Controller
 
         $rounds = $this->getRounds();
 
-        foreach ($rounds as $round) {
-            foreach ($round->getParticipants() as $participant) {
-                $participant->setPoints($this->getPointsForPlayerAndRound($participant->getPlayer(), $round));
-            }
-        }
-
         return $this->render(
             'index/show_scoreboard.html.twig',
             ['players' => $players, 'rounds' => $rounds]
@@ -324,31 +318,6 @@ class DokoController extends Controller
 
     /**
      * @param Player $player
-     * @param Round $round
-     * @return int
-     */
-    private function getPointsForPlayerAndRound(Player $player, Round $round)
-    {
-        $queryBuilder = $this->getEm()->createQueryBuilder()
-            ->select('SUM(participant.points)')
-            ->from('AppBundle:Participant', 'participant')
-            ->join('participant.round', 'round')
-            ->andWhere('participant.player = :player')
-            ->andWhere('round.creationDate = :currentRoundCreationDate')
-            ->setParameter('player', $player)
-            ->setParameter('currentRoundCreationDate', $round->getCreationDate());
-
-        $points = $queryBuilder->getQuery()->getSingleScalarResult();
-
-        if (is_null($points)) {
-            return 0;
-        }
-
-        return (int) $points;
-    }
-
-    /**
-     * @param Player $player
      * @return array|Round[]
      */
     private function getRoundsByPlayer(Player $player)
@@ -369,19 +338,16 @@ class DokoController extends Controller
      */
     private function getPartnersOfPlayer(Player $player)
     {
-        $statement = $this->getEm()->getConnection()->prepare('
-            SELECT partnerPlayer.name AS name, SUM(participant.points) AS points
-            FROM participant
-            JOIN participant AS partner ON partner.round_id = participant.round_id
-                AND partner.player_id != :playerId
-                AND participant.points = partner.points
-            JOIN player AS partnerPlayer ON partnerPlayer.id = partner.player_id
-            WHERE participant.player_id = :playerId
-            GROUP BY partner.player_id
-            ORDER BY points DESC');
+        $sql = 'SELECT partnerPlayer.name AS name, SUM(participant.points) AS points
+                FROM participant
+                JOIN participant AS partner ON partner.round_id = participant.round_id
+                    AND partner.player_id != :playerId
+                    AND participant.points = partner.points
+                JOIN player AS partnerPlayer ON partnerPlayer.id = partner.player_id
+                WHERE participant.player_id = :playerId
+                GROUP BY partner.player_id
+                ORDER BY points DESC;';
 
-        $statement->bindValue('playerId', $player->getId());
-        $statement->execute();
-        return $statement->fetchAll();
+        return $this->getEm()->getConnection()->executeQuery($sql, ['playerId' => $player->getId()])->fetchAll();
     }
 }
