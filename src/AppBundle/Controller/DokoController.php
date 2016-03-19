@@ -133,13 +133,14 @@ class DokoController extends Controller
      * Show scoreboard
      *
      * @Route("/showScoreboard")
+     * @param Request $request
      * @return Response
      */
-    public function showScoreboardAction()
+    public function showScoreboardAction(Request $request)
     {
         $players = $this->getPlayers();
 
-        $rounds = $this->getRounds();
+        $rounds = $this->getRounds($request);
 
         return $this->render(
             'index/show_scoreboard.html.twig',
@@ -295,23 +296,25 @@ class DokoController extends Controller
     }
 
     /**
-     * @param int $limit
-     * @param int $offset
-     * @return array|Round[]
+     * @param Request $request
+     * @return \AppBundle\Entity\Round[]|array
      */
-    private function getRounds($limit = 10, $offset = 0)
+    private function getRounds(Request $request)
     {
         $queryBuilder = $this->getEm()->createQueryBuilder()
             ->select(['round'])
-            ->from('AppBundle:Round', 'round')
-            ->orderBy('round.creationDate', 'DESC');
-//              TODO implement pagination
-//            ->setFirstResult($offset)
-//            ->setMaxResults($limit);
+            ->from('AppBundle:Round', 'round');
 
-        $rounds = $queryBuilder->getQuery()->getResult();
+        $query = $queryBuilder->getQuery();
 
-        return array_reverse($rounds);
+        $paginator = $this->get('knp_paginator');
+        $pagination = $paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+            15
+        );
+
+        return $pagination;
     }
 
     /**
