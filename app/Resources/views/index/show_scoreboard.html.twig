@@ -3,7 +3,7 @@
 {% block body %}
     <h1>Scoreboard</h1>
 
-    <table border="1">
+    <table class="table table-bordered">
         <thead>
         <tr>
             <th>Round #</th>
@@ -16,7 +16,7 @@
         <tbody>
         {% for round in rounds %}
             <tr>
-                <td>{{ loop.index }}) {{ round.creationDate | date("d.m.Y -- H:i") }} Uhr</td>
+                <td>{{ round.id }}) {{ round.creationDate | date("d.m.Y -- H:i") }} Uhr</td>
                 {% for player in players %}
                     {% set found = false %}
                     {% for participant in round.participants %}
@@ -48,7 +48,8 @@
         </tr>
         </tfoot>
     </table>
-    <br>
-    <a href="{{ path('app_doko_enterpoints') }}" class="btn btn-primary">Enter points</a>
-    <a href="{{ path('app_doko_index') }}" class="btn btn-default">Back to homepage</a>
+    <div class="btn-group-lg">
+        <a href="{{ path('app_doko_enterpoints') }}" class="btn btn-primary">Enter points</a>
+        <a href="{{ path('app_doko_index') }}" class="btn btn-default">Back to homepage</a>
+    </div>
 {% endblock %}

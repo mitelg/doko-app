@@ -6,6 +6,8 @@
     {{ form_widget(pointsForm) }}
     {{ form_end(pointsForm) }}
     <br>
-    <a href="{{ path('app_doko_showscoreboard') }}" class="btn btn-default">Show scoreboard</a>
-    <a href="{{ path('app_doko_index') }}" class="btn btn-default">Back to homepage</a>
+    <div class="btn-group-lg">
+        <a href="{{ path('app_doko_showscoreboard') }}" class="btn btn-default">Show scoreboard</a>
+        <a href="{{ path('app_doko_index') }}" class="btn btn-default">Back to homepage</a>
+    </div>
 {% endblock %}
