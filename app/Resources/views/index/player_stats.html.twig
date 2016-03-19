@@ -3,18 +3,17 @@
 {% block body %}
     <h1>{{ player.name }}</h1>
     <div class="h3">
-        Played rounds: {{ rounds|length }}
+        Played rounds: {{ rounds.getTotalItemCount }}
     </div>
     <div class="table-responsive">
         <table class="table table-bordered table-striped table-condensed">
             <thead>
             <tr>
-                <th class="text-center">Round #</th>
-                <th class="text-center">Player 1</th>
-                <th class="text-center">Player 2</th>
-                <th class="text-center">Player 3</th>
-                <th class="text-center">Player 4</th>
-                <th class="text-center">Points</th>
+                <th class="text-center">{{ knp_pagination_sortable(rounds, 'Round #', 'round.id') }}</th>
+                {% for i in 1..4 %}
+                    <th class="text-center">Player {{ i }}</th>
+                {% endfor %}
+                <th class="text-center">{{ knp_pagination_sortable(rounds, 'Points', 'round.points') }}</th>
             </tr>
             </thead>
             <tbody>
@@ -37,7 +36,9 @@
             </tbody>
         </table>
     </div>
-
+    <div>
+        {{ knp_pagination_render(rounds) }}
+    </div>
     <div>
         <h2>Best Partners</h2>
         <ul class="list-group">

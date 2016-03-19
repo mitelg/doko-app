@@ -8,6 +8,7 @@ use AppBundle\Entity\Round;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManager;
+use Knp\Component\Pager\Pagination\PaginationInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -152,14 +153,15 @@ class DokoController extends Controller
      * Show player stats
      *
      * @Route("/playerstats/{playerId}")
-     * @param $playerId
+     * @param Request $request
+     * @param int $playerId
      * @return Response
      */
-    public function getPlayerStats($playerId)
+    public function getPlayerStats(Request $request, $playerId)
     {
         $player = $this->getPlayerById($playerId);
 
-        $rounds = $this->getRoundsByPlayer($player);
+        $rounds = $this->getRoundsByPlayer($player, $request);
 
         $partners = $this->getPartnersOfPlayer($player);
 
@@ -297,7 +299,7 @@ class DokoController extends Controller
 
     /**
      * @param Request $request
-     * @return \AppBundle\Entity\Round[]|array
+     * @return PaginationInterface
      */
     private function getRounds(Request $request)
     {
@@ -319,9 +321,10 @@ class DokoController extends Controller
 
     /**
      * @param Player $player
-     * @return array|Round[]
+     * @param Request $request
+     * @return PaginationInterface
      */
-    private function getRoundsByPlayer(Player $player)
+    private function getRoundsByPlayer(Player $player, Request $request)
     {
         $queryBuilder = $this->getEm()->createQueryBuilder()
             ->select(['round'])
@@ -330,7 +333,16 @@ class DokoController extends Controller
             ->andWhere('participant.player = :player')
             ->setParameter('player', $player);
 
-        return $queryBuilder->getQuery()->getResult();
+        $query = $queryBuilder->getQuery();
+
+        $paginator = $this->get('knp_paginator');
+        $pagination = $paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+            10
+        );
+
+        return $pagination;
     }
 
     /**
