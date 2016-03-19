@@ -3,10 +3,15 @@
 {% block body %}
     <h1>Enter points</h1>
     {{ form_start(pointsForm, {'attr': {'class': 'form-horizontal form-group'}}) }}
-    <div class="col-sm-2"></div>
-    <div class="btn-danger form-group col-sm-10">
-        {{ form_errors(pointsForm) }}
-    </div>
+    {% if pointsForm.vars.errors %}
+        <div class="form-group">
+            <div class="col-sm-2"></div>
+            <div class="btn-danger col-sm-10">
+                {{ form_errors(pointsForm) }}
+                {{ form_errors(pointsForm.points) }}
+            </div>
+        </div>
+    {% endif %}
     <div class="form-group">
         {{ form_label(pointsForm.points, 'Points', {'label_attr': {'class': 'col-sm-2 control-label'}}) }}
         <div class="col-sm-10">
