@@ -7,13 +7,13 @@
         <table class="table table-bordered table-striped table-condensed">
             <thead>
             <tr>
-                <th class="text-center">Round #</th>
+                <th class="text-center">{{ knp_pagination_sortable(rounds, 'Round #', 'round.id') }}</th>
                 {% for player in players %}
                     <th class="text-center">
                         <a href="{{ path('app_doko_getplayerstats', {playerId: player.id}) }}">{{ player.name }}</a>
                     </th>
                 {% endfor %}
-                <th class="text-center">Points</th>
+                <th class="text-center">{{ knp_pagination_sortable(rounds, 'Points', 'round.points') }}</th>
             </tr>
             </thead>
             <tbody>
@@ -51,6 +51,9 @@
             </tr>
             </tfoot>
         </table>
+    </div>
+    <div>
+        {{ knp_pagination_render(rounds) }}
     </div>
     <div class="btn-group-lg">
         <a href="{{ path('app_doko_enterpoints') }}" class="btn btn-primary">Enter points</a>
