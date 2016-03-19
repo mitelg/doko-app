@@ -87,14 +87,12 @@ class DokoController extends Controller
             // if given data is not valid, throw several form errors and redirect to action again
             if (!is_array($data)) {
                 if ($data == -1) {
-                    $error = new FormError('There must be at least one winner');
+                    $pointsForm->addError(new FormError('There must be at least one winner'));
                 } elseif ($data == -2) {
-                    $error = new FormError('Four winners are one too many');
-                } else {
-                    $error = new FormError('One player is selected twice');
+                    $pointsForm->addError(new FormError('Four winners are one too many'));
+                } elseif ($data == -3) {
+                    $pointsForm->addError(new FormError('One player is selected twice'));
                 }
-
-                $pointsForm->addError($error);
 
                 return $this->render(
                     'index/enter_points.html.twig',
@@ -239,17 +237,17 @@ class DokoController extends Controller
         }
 
         $pointsForm = $this->createFormBuilder()
-            ->add('points', NumberType::class, ['label' => 'Points'])
-            ->add('bockRound', CheckboxType::class, ['label' => 'Bock round?', 'required' => false]);
+            ->add('points', NumberType::class)
+            ->add('bockRound', CheckboxType::class, ['required' => false]);
 
         // create four players
         for ($i = 1; $i <= 4; $i++) {
-            $pointsForm->add('player' . $i, ChoiceType::class, ['label' => 'Player ' . $i, 'choices' => $playersArray]);
-            $pointsForm->add('player' . $i . 'win', CheckboxType::class, ['label' => 'Win?', 'required' => false]);
+            $pointsForm->add('player' . $i, ChoiceType::class, ['choices' => $playersArray]);
+            $pointsForm->add('player' . $i . 'win', CheckboxType::class, ['required' => false]);
         }
 
-        $pointsForm->add('save', SubmitType::class, ['label' => 'Save points'])
-            ->add('saveAndNew', SubmitType::class, ['label' => 'Save points and enter new']);
+        $pointsForm->add('saveAndNew', SubmitType::class, ['label' => 'Save points and enter new'])
+            ->add('save', SubmitType::class, ['label' => 'Save points']);
 
         $pointsForm = $pointsForm->getForm();
 

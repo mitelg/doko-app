@@ -7,6 +7,7 @@
     {{ form_widget(playerForm) }}
     {{ form_end(playerForm) }}
     <br>
-    <br>
-    <a href="{{ path('app_doko_index') }}">Back to homepage</a>
+    <div class="btn-group-lg">
+        <a href="{{ path('app_doko_index') }}" class="btn btn-primary">Back to homepage</a>
+    </div>
 {% endblock %}

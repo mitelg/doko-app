@@ -1,11 +1,18 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <h1>Doko App</h1>
-
-    <a href="{{ path('app_doko_showscoreboard') }}">Show scoreboard</a>
+    <div>
+        <h1>Doko App</h1>
+    </div>
+    <div class="btn-group-lg">
+        <a href="{{ path('app_doko_showscoreboard') }}" class="btn btn-primary">Show scoreboard</a>
+    </div>
     <br>
-    <a href="{{ path('app_doko_enterpoints') }}">Enter points</a>
+    <div class="btn-group-lg">
+        <a href="{{ path('app_doko_enterpoints') }}" class="btn btn-primary">Enter points</a>
+    </div>
     <br>
-    <a href="{{ path('app_doko_createplayer') }}">Create new player</a>
+    <div class="btn-group-lg">
+        <a href="{{ path('app_doko_createplayer') }}" class="btn btn-default">Create new player</a>
+    </div>
 {% endblock %}

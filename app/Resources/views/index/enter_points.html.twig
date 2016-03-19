@@ -2,12 +2,75 @@
 
 {% block body %}
     <h1>Enter points</h1>
-    {{ form_start(pointsForm) }}
-    {{ form_widget(pointsForm) }}
+    {{ form_start(pointsForm, {'attr': {'class': 'form-horizontal form-group'}}) }}
+    <div class="col-sm-2"></div>
+    <div class="btn-danger form-group col-sm-10">
+        {{ form_errors(pointsForm) }}
+    </div>
+    <div class="form-group">
+        {{ form_label(pointsForm.points, 'Points', {'label_attr': {'class': 'col-sm-2 control-label'}}) }}
+        <div class="col-sm-10">
+            {{ form_widget(pointsForm.points, {'attr': {'class': 'form-control'}}) }}
+        </div>
+    </div>
+    <div class="form-group">
+        {{ form_label(pointsForm.bockRound, 'Bock round?', {'label_attr': {'class': 'col-sm-2 control-label'}}) }}
+        <div class="col-sm-10">
+            {{ form_widget(pointsForm.bockRound, {'attr': {'class': 'form-control'}}) }}
+        </div>
+    </div>
+    <div class="form-group">
+        {{ form_label(pointsForm.player1, 'Player 1', {'label_attr': {'class': 'col-sm-2 control-label'}}) }}
+        <div class="col-sm-10">
+            {{ form_widget(pointsForm.player1, {'attr': {'class': 'form-control'}}) }}
+        </div>
+        {{ form_label(pointsForm.player1win, 'Win?', {'label_attr': {'class': 'col-sm-2 control-label'}}) }}
+        <div class="col-sm-10">
+            {{ form_widget(pointsForm.player1win, {'attr': {'class': 'form-control'}}) }}
+        </div>
+    </div>
+    <div class="form-group">
+        {{ form_label(pointsForm.player2, 'Player 2', {'label_attr': {'class': 'col-sm-2 control-label'}}) }}
+        <div class="col-sm-10">
+            {{ form_widget(pointsForm.player2, {'attr': {'class': 'form-control'}}) }}
+        </div>
+        {{ form_label(pointsForm.player2win, 'Win?', {'label_attr': {'class': 'col-sm-2 control-label'}}) }}
+        <div class="col-sm-10">
+            {{ form_widget(pointsForm.player2win, {'attr': {'class': 'form-control'}}) }}
+        </div>
+    </div>
+    <div class="form-group">
+        {{ form_label(pointsForm.player3, 'Player 3', {'label_attr': {'class': 'col-sm-2 control-label'}}) }}
+        <div class="col-sm-10">
+            {{ form_widget(pointsForm.player3, {'attr': {'class': 'form-control'}}) }}
+        </div>
+        {{ form_label(pointsForm.player3win, 'Win?', {'label_attr': {'class': 'col-sm-2 control-label'}}) }}
+        <div class="col-sm-10">
+            {{ form_widget(pointsForm.player3win, {'attr': {'class': 'form-control'}}) }}
+        </div>
+    </div>
+    <div class="form-group">
+        {{ form_label(pointsForm.player4, 'Player 4', {'label_attr': {'class': 'col-sm-2 control-label'}}) }}
+        <div class="col-sm-10">
+            {{ form_widget(pointsForm.player4, {'attr': {'class': 'form-control'}}) }}
+        </div>
+        {{ form_label(pointsForm.player4win, 'Win?', {'label_attr': {'class': 'col-sm-2 control-label'}}) }}
+        <div class="col-sm-10">
+            {{ form_widget(pointsForm.player4win, {'attr': {'class': 'form-control'}}) }}
+        </div>
+    </div>
+    <div class="form-group">
+        {{ form_widget(pointsForm.saveAndNew, {'attr': {'class': 'btn btn-lg btn-primary'}}) }}
+    </div>
+    <div class="form-group">
+        {{ form_widget(pointsForm.save, {'attr': {'class': 'btn btn-lg btn-default'}}) }}
+    </div>
     {{ form_end(pointsForm) }}
+    <div class="btn-group-lg">
+        <a href="{{ path('app_doko_showscoreboard') }}" class="btn btn-default">Show scoreboard</a>
+    </div>
     <br>
-    <br>
-    <a href="{{ path('app_doko_showscoreboard') }}">Show scoreboard</a>
-    <br>
-    <a href="{{ path('app_doko_index') }}">Back to homepage</a>
+    <div class="btn-group-lg">
+        <a href="{{ path('app_doko_index') }}" class="btn btn-default">Back to homepage</a>
+    </div>
 {% endblock %}
