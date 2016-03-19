@@ -3,53 +3,60 @@
 {% block body %}
     <h1>Scoreboard</h1>
 
-    <table class="table table-bordered">
-        <thead>
-        <tr>
-            <th>Round #</th>
-            {% for player in players %}
-                <th><a href="{{ path('app_doko_getplayerstats', {playerId: player.id}) }}">{{ player.name }}</a></th>
-            {% endfor %}
-            <th>Points</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for round in rounds %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped table-condensed">
+            <thead>
             <tr>
-                <td>{{ round.id }}) {{ round.creationDate | date("d.m.Y -- H:i") }} Uhr</td>
+                <th class="text-center">Round #</th>
                 {% for player in players %}
-                    {% set found = false %}
-                    {% for participant in round.participants %}
-                        {% if player.id == participant.player.id %}
-                            <td>{{ participant.points }}</td>
-                            {% set found = true %}
+                    <th class="text-center">
+                        <a href="{{ path('app_doko_getplayerstats', {playerId: player.id}) }}">{{ player.name }}</a>
+                    </th>
+                {% endfor %}
+                <th class="text-center">Points</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for round in rounds %}
+                <tr>
+                    <td>{{ round.id }}) {{ round.creationDate | date("d.m.Y -- H:i") }} Uhr</td>
+                    {% for player in players %}
+                        {% set found = false %}
+                        {% for participant in round.participants %}
+                            {% if player.id == participant.player.id %}
+                                <td>{{ participant.points }}</td>
+                                {% set found = true %}
+                            {% endif %}
+                        {% endfor %}
+                        {% if not found %}
+                            <td></td>
                         {% endif %}
                     {% endfor %}
-                    {% if not found %}
-                        <td></td>
-                    {% endif %}
-                {% endfor %}
-                <td>
-                    {{ round.points }}
-                    {% if round.bock %}
-                        <strong>B</strong> {{ round.points * 2 }}
-                    {% endif %}
-                </td>
-            </tr>
-        {% endfor %}
-        </tbody>
-        <tfoot>
-        <tr>
-            <th>Total</th>
-            {% for player in players %}
-                <th>{{ player.points }}</th>
+                    <td>
+                        {{ round.points }}
+                        {% if round.bock %}
+                            <strong>B</strong> {{ round.points * 2 }}
+                        {% endif %}
+                    </td>
+                </tr>
             {% endfor %}
-            <th></th>
-        </tr>
-        </tfoot>
-    </table>
+            </tbody>
+            <tfoot>
+            <tr>
+                <th class="text-center">Total</th>
+                {% for player in players %}
+                    <th class="text-center">{{ player.points }}</th>
+                {% endfor %}
+                <th></th>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
     <div class="btn-group-lg">
         <a href="{{ path('app_doko_enterpoints') }}" class="btn btn-primary">Enter points</a>
+    </div>
+    <br>
+    <div class="btn-group-lg">
         <a href="{{ path('app_doko_index') }}" class="btn btn-default">Back to homepage</a>
     </div>
 {% endblock %}

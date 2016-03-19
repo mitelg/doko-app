@@ -5,16 +5,16 @@
     <div class="h3">
         Played rounds: {{ rounds|length }}
     </div>
-    <div>
-        <table class="table table-bordered">
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped table-condensed">
             <thead>
             <tr>
-                <th>Round #</th>
-                <th>Player 1</th>
-                <th>Player 2</th>
-                <th>Player 3</th>
-                <th>Player 4</th>
-                <th>Points</th>
+                <th class="text-center">Round #</th>
+                <th class="text-center">Player 1</th>
+                <th class="text-center">Player 2</th>
+                <th class="text-center">Player 3</th>
+                <th class="text-center">Player 4</th>
+                <th class="text-center">Points</th>
             </tr>
             </thead>
             <tbody>
@@ -48,6 +48,9 @@
     </div>
     <div class="btn-group-lg">
         <a href="{{ path('app_doko_showscoreboard') }}" class="btn btn-primary">Show scoreboard</a>
+    </div>
+    <br>
+    <div class="btn-group-lg">
         <a href="{{ path('app_doko_index') }}" class="btn btn-default">Back to homepage</a>
     </div>
 {% endblock %}
