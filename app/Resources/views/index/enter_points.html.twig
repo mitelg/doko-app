@@ -71,11 +71,10 @@
         {{ form_widget(pointsForm.save, {'attr': {'class': 'btn btn-lg btn-default'}}) }}
     </div>
     {{ form_end(pointsForm) }}
-    <div class="btn-group-lg">
+    <div class="form-group btn-group-lg">
         <a href="{{ path('app_doko_showscoreboard') }}" class="btn btn-default">Show scoreboard</a>
     </div>
-    <br>
-    <div class="btn-group-lg">
+    <div class="form-group btn-group-lg">
         <a href="{{ path('app_doko_index') }}" class="btn btn-default">Back to homepage</a>
     </div>
 {% endblock %}

@@ -77,7 +77,7 @@ class DokoController extends Controller
      */
     public function enterPointsAction(Request $request)
     {
-        $pointsForm = $this->createPointsForm();
+        $pointsForm = $this->createPointsForm($this->get('session')->get('playerIds', []));
 
         $pointsForm->handleRequest($request);
 
@@ -106,10 +106,12 @@ class DokoController extends Controller
             $round->setCreationDate(new DateTime());
             $round->setPoints($pointsOfGame);
 
+            $playerIds = [];
             // if data is okay, save points to database
             $participants = new ArrayCollection();
             foreach ($data as $item) {
                 $player = $this->getPlayerById($item['playerId']);
+                $playerIds[] = $item['playerId'];
                 $newPoints = $player->getPoints() + $item['points'];
                 $player->setPoints($newPoints);
                 $participant = new Participant($round, $player, $item['points']);
@@ -118,6 +120,8 @@ class DokoController extends Controller
             $round->setParticipants($participants);
             $this->getEm()->persist($round);
             $this->getEm()->flush();
+
+            $this->get('session')->set('playerIds', $playerIds);
 
             $nextAction = $pointsForm->get('save')->isClicked() ? 'app_doko_showscoreboard' : 'app_doko_enterpoints';
 
@@ -229,10 +233,15 @@ class DokoController extends Controller
     }
 
     /**
+     * @param array $playerIds
      * @return Form
      */
-    private function createPointsForm()
+    private function createPointsForm(array $playerIds)
     {
+        if (empty($playerIds)) {
+            $playerIds = [1,2,3,4];
+        }
+
         $players = $this->getPlayers();
         $playersArray = [];
         foreach ($players as $player) {
@@ -245,7 +254,7 @@ class DokoController extends Controller
 
         // create four players
         for ($i = 1; $i <= 4; $i++) {
-            $pointsForm->add('player' . $i, ChoiceType::class, ['choices' => $playersArray]);
+            $pointsForm->add('player' . $i, ChoiceType::class, ['choices' => $playersArray, 'data' => $playerIds[$i-1]]);
             $pointsForm->add('player' . $i . 'win', CheckboxType::class, ['required' => false]);
         }
 
@@ -313,7 +322,7 @@ class DokoController extends Controller
         $pagination = $paginator->paginate(
             $query,
             $request->query->getInt('page', 1),
-            15
+            10
         );
 
         return $pagination;
