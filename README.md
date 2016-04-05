@@ -1,7 +1,7 @@
 doko-app
 ========
 
-this is a small web app to save points for players of the german game "Doppelkopf"
+this is a small web app to save points for players of the german card game "Doppelkopf"
 
 based on Symfony 3
 
