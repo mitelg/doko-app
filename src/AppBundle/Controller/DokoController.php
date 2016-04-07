@@ -83,7 +83,11 @@ class DokoController extends Controller
 
         if ($pointsForm->isValid()) {
             $pointsOfGame = $pointsForm->getData()['points'];
-            $data = $this->calculateGameResult($pointsForm->getData());
+            if ($pointsOfGame > 0) {
+                $data = $this->calculateGameResult($pointsForm->getData());
+            } else {
+                $data = -4;
+            }
 
             // if given data is not valid, throw several form errors and redirect to action again
             if (!is_array($data)) {
@@ -93,6 +97,8 @@ class DokoController extends Controller
                     $pointsForm->addError(new FormError('Four winners are one too many'));
                 } elseif ($data == -3) {
                     $pointsForm->addError(new FormError('One player is selected twice'));
+                } elseif ($data == -4) {
+                    $pointsForm->addError(new FormError('The value of points must be at least 1'));
                 }
 
                 return $this->render(
