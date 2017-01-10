@@ -81,7 +81,7 @@ class DokoController extends Controller
 
         $pointsForm->handleRequest($request);
 
-        if ($pointsForm->isValid()) {
+        if ($pointsForm->isSubmitted()) {
             $pointsOfGame = $pointsForm->getData()['points'];
             if ($pointsOfGame > 0) {
                 $data = $this->calculateGameResult($pointsForm->getData());

@@ -23,9 +23,14 @@
                     <td>
                         {{ position + 1 }}
                     </td>
-                    <td><strong><a href="{{ path('app_doko_getplayerstats', {playerId: player.id}) }}">{{ player.name }}</strong></a>
+                    <td>
+                        <a href="{{ path('app_doko_getplayerstats', {playerId: player.id}) }}">
+                            <strong>{{ player.name }}</strong>
+                        </a>
                     </td>
-                    <td><strong>{{ player.points }}</strong></td>
+                    <td>
+                        <strong>{{ player.points }}</strong>
+                    </td>
                     {% for round in rounds %}
                         {% set found = false %}
                         {% for participant in round.participants %}
