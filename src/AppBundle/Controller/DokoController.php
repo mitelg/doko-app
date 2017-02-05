@@ -13,11 +13,11 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormError;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -81,7 +81,7 @@ class DokoController extends Controller
 
         $pointsForm->handleRequest($request);
 
-        if ($pointsForm->isValid()) {
+        if ($pointsForm->isSubmitted()) {
             $pointsOfGame = $pointsForm->getData()['points'];
             if ($pointsOfGame > 0) {
                 $data = $this->calculateGameResult($pointsForm->getData());
@@ -91,13 +91,13 @@ class DokoController extends Controller
 
             // if given data is not valid, throw several form errors and redirect to action again
             if (!is_array($data)) {
-                if ($data == -1) {
+                if ($data === -1) {
                     $pointsForm->addError(new FormError('There must be at least one winner'));
-                } elseif ($data == -2) {
+                } elseif ($data === -2) {
                     $pointsForm->addError(new FormError('Four winners are one too many'));
-                } elseif ($data == -3) {
+                } elseif ($data === -3) {
                     $pointsForm->addError(new FormError('One player is selected twice'));
-                } elseif ($data == -4) {
+                } elseif ($data === -4) {
                     $pointsForm->addError(new FormError('The value of points must be at least 1'));
                 }
 
@@ -198,7 +198,7 @@ class DokoController extends Controller
 
         // double the points if Bock round
         if ($formData['bockRound']) {
-            $points = $points * 2;
+            $points *= 2;
         }
 
         // separate the four players into winners and losers
@@ -217,19 +217,19 @@ class DokoController extends Controller
             }
         }
 
-        if (count($winners) == 0) {
+        if (count($winners) === 0) {
             // there is no winner selected
             return -1;
-        } elseif (count($winners) == 1) {
+        } elseif (count($winners) === 1) {
             // there is only one winner, so he/she gets more points
-            $winners[0]['points'] = $winners[0]['points'] * 3;
+            $winners[0]['points'] *= 3;
 
             return array_merge($winners, $losers);
-        } elseif (count($winners) == 2) {
+        } elseif (count($winners) === 2) {
             return array_merge($winners, $losers);
-        } elseif (count($winners) == 3) {
+        } elseif (count($winners) === 3) {
             // there is only one loser, so he/she loses more points
-            $losers[0]['points'] = $losers[0]['points'] * 3;
+            $losers[0]['points'] *= 3;
 
             return array_merge($winners, $losers);
         } else {
@@ -240,7 +240,7 @@ class DokoController extends Controller
 
     /**
      * @param array $playerIds
-     * @return Form
+     * @return FormInterface
      */
     private function createPointsForm(array $playerIds)
     {
@@ -255,7 +255,7 @@ class DokoController extends Controller
         }
 
         $pointsForm = $this->createFormBuilder()
-            ->add('points', NumberType::class)
+            ->add('points', IntegerType::class)
             ->add('bockRound', CheckboxType::class, ['required' => false]);
 
         // create four players
@@ -277,7 +277,7 @@ class DokoController extends Controller
      */
     private function getEm()
     {
-        if ($this->em == null) {
+        if ($this->em === null) {
             $this->em = $this->getDoctrine()->getManager();
 
             return $this->em;
@@ -294,7 +294,7 @@ class DokoController extends Controller
         $builder = $this->getEm()->createQueryBuilder()
             ->select(['player'])
             ->from('AppBundle:Player', 'player')
-            ->addOrderBy('player.name', 'ASC');
+            ->addOrderBy('player.points', 'DESC');
 
         return $builder->getQuery()->getResult();
     }
@@ -307,9 +307,7 @@ class DokoController extends Controller
     {
         $playerRepo = $this->getEm()->getRepository('AppBundle:Player');
 
-        $player = $playerRepo->find($id);
-
-        return $player;
+        return $playerRepo->find($id);
     }
 
     /**
@@ -320,7 +318,8 @@ class DokoController extends Controller
     {
         $queryBuilder = $this->getEm()->createQueryBuilder()
             ->select(['round'])
-            ->from('AppBundle:Round', 'round');
+            ->from('AppBundle:Round', 'round')
+            ->addOrderBy('round.creationDate', 'DESC');
 
         $query = $queryBuilder->getQuery();
 
@@ -346,7 +345,8 @@ class DokoController extends Controller
             ->from('AppBundle:Round', 'round')
             ->join('round.participants', 'participant')
             ->andWhere('participant.player = :player')
-            ->setParameter('player', $player);
+            ->setParameter('player', $player)
+            ->addOrderBy('round.id', 'DESC');
 
         $query = $queryBuilder->getQuery();
 

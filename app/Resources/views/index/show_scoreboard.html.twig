@@ -7,20 +7,31 @@
         <table class="table table-bordered table-striped table-condensed">
             <thead>
             <tr>
-                <th class="text-center">{{ knp_pagination_sortable(rounds, 'Round #', 'round.id') }}</th>
-                {% for player in players %}
+                <th class="text-center">{{ knp_pagination_sortable(rounds, '#', 'round.id', {'defaultDirection' : 'DESC'}) }}</th>
+                <th class="text-center">Player</th>
+                <th class="text-center">Total</th>
+                {% for round in rounds %}
                     <th class="text-center">
-                        <a href="{{ path('app_doko_getplayerstats', {playerId: player.id}) }}">{{ player.name }}</a>
+                        {{ round.id }}.
                     </th>
                 {% endfor %}
-                <th class="text-center">{{ knp_pagination_sortable(rounds, 'Points', 'round.points') }}</th>
             </tr>
             </thead>
             <tbody>
-            {% for round in rounds %}
+            {% for position, player in players %}
                 <tr>
-                    <td>{{ round.id }}) {{ round.creationDate | date("d.m.Y -- H:i") }} Uhr</td>
-                    {% for player in players %}
+                    <td>
+                        {{ position + 1 }}
+                    </td>
+                    <td>
+                        <a href="{{ path('app_doko_getplayerstats', {playerId: player.id}) }}">
+                            <strong>{{ player.name }}</strong>
+                        </a>
+                    </td>
+                    <td>
+                        <strong>{{ player.points }}</strong>
+                    </td>
+                    {% for round in rounds %}
                         {% set found = false %}
                         {% for participant in round.participants %}
                             {% if player.id == participant.player.id %}
@@ -32,22 +43,20 @@
                             <td></td>
                         {% endif %}
                     {% endfor %}
-                    <td>
-                        {{ round.points }}
-                        {% if round.bock %}
-                            <strong>B</strong> {{ round.points * 2 }}
-                        {% endif %}
-                    </td>
                 </tr>
             {% endfor %}
             </tbody>
             <tfoot>
             <tr>
-                <th class="text-center">Total</th>
-                {% for player in players %}
-                    <th class="text-center">{{ player.points }}</th>
+                <th colspan="3" class="text-center">{{ knp_pagination_sortable(rounds, 'Points', 'round.points', {'defaultDirection' : 'DESC'}) }}</th>
+                {% for round in rounds %}
+                    <td class="text-center">
+                        {{ round.points }}
+                        {% if round.bock %}
+                            <strong>B</strong> {{ round.points * 2 }}
+                        {% endif %}
+                    </td>
                 {% endfor %}
-                <th></th>
             </tr>
             </tfoot>
         </table>

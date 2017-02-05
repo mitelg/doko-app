@@ -5,62 +5,61 @@
     {{ form_start(pointsForm, {'attr': {'class': 'form-horizontal form-group'}}) }}
     {% if not pointsForm.vars.valid %}
         <div class="form-group">
-            <div class="col-sm-2"></div>
-            <div class="btn-danger col-sm-10">
+            <div class="btn-danger col-xs-12">
                 {{ form_errors(pointsForm) }}
                 {{ form_errors(pointsForm.points) }}
             </div>
         </div>
     {% endif %}
-    <div class="form-group">
-        {{ form_label(pointsForm.points, 'Points', {'label_attr': {'class': 'col-sm-2 control-label'}}) }}
-        <div class="col-sm-10">
+    <div class="form-group enter-points--label-line-height">
+        {{ form_label(pointsForm.points, 'Points', {'label_attr': {'class': 'col-xs-6 control-label'}}) }}
+        <div class="col-xs-6">
             {{ form_widget(pointsForm.points, {'attr': {'class': 'form-control'}}) }}
         </div>
     </div>
-    <div class="form-group">
-        {{ form_label(pointsForm.bockRound, 'Bock round?', {'label_attr': {'class': 'col-sm-2 control-label'}}) }}
-        <div class="col-sm-10">
+    <div class="form-group enter-points--label-line-height">
+        {{ form_label(pointsForm.bockRound, 'Bock round?', {'label_attr': {'class': 'col-xs-6 control-label'}}) }}
+        <div class="col-xs-6">
             {{ form_widget(pointsForm.bockRound, {'attr': {'class': 'form-control'}}) }}
         </div>
     </div>
     <div class="form-group">
-        {{ form_label(pointsForm.player1, 'Player 1', {'label_attr': {'class': 'col-sm-2 control-label'}}) }}
-        <div class="col-sm-10">
+        <div class="col-xs-6">
+            <strong>Players</strong>
+        </div>
+        <div class="col-xs-6">
+            <strong>Win?</strong>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-xs-6 enter-points--label-padding-top7">
             {{ form_widget(pointsForm.player1, {'attr': {'class': 'form-control'}}) }}
         </div>
-        {{ form_label(pointsForm.player1win, 'Win?', {'label_attr': {'class': 'col-sm-2 control-label'}}) }}
-        <div class="col-sm-10">
+        <div class="col-xs-6">
             {{ form_widget(pointsForm.player1win, {'attr': {'class': 'form-control'}}) }}
         </div>
     </div>
     <div class="form-group">
-        {{ form_label(pointsForm.player2, 'Player 2', {'label_attr': {'class': 'col-sm-2 control-label'}}) }}
-        <div class="col-sm-10">
+        <div class="col-xs-6 enter-points--label-padding-top7">
             {{ form_widget(pointsForm.player2, {'attr': {'class': 'form-control'}}) }}
         </div>
-        {{ form_label(pointsForm.player2win, 'Win?', {'label_attr': {'class': 'col-sm-2 control-label'}}) }}
-        <div class="col-sm-10">
+        <div class="col-xs-6">
             {{ form_widget(pointsForm.player2win, {'attr': {'class': 'form-control'}}) }}
         </div>
     </div>
     <div class="form-group">
-        {{ form_label(pointsForm.player3, 'Player 3', {'label_attr': {'class': 'col-sm-2 control-label'}}) }}
-        <div class="col-sm-10">
+        <div class="col-xs-6 enter-points--label-padding-top7">
             {{ form_widget(pointsForm.player3, {'attr': {'class': 'form-control'}}) }}
         </div>
-        {{ form_label(pointsForm.player3win, 'Win?', {'label_attr': {'class': 'col-sm-2 control-label'}}) }}
-        <div class="col-sm-10">
+        <div class="col-xs-6">
             {{ form_widget(pointsForm.player3win, {'attr': {'class': 'form-control'}}) }}
         </div>
     </div>
     <div class="form-group">
-        {{ form_label(pointsForm.player4, 'Player 4', {'label_attr': {'class': 'col-sm-2 control-label'}}) }}
-        <div class="col-sm-10">
+        <div class="col-xs-6 enter-points--label-padding-top7">
             {{ form_widget(pointsForm.player4, {'attr': {'class': 'form-control'}}) }}
         </div>
-        {{ form_label(pointsForm.player4win, 'Win?', {'label_attr': {'class': 'col-sm-2 control-label'}}) }}
-        <div class="col-sm-10">
+        <div class="col-xs-6">
             {{ form_widget(pointsForm.player4win, {'attr': {'class': 'form-control'}}) }}
         </div>
     </div>
