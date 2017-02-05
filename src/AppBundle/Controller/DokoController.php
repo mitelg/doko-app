@@ -175,10 +175,59 @@ class DokoController extends Controller
 
         $partners = $this->getPartnersOfPlayer($player);
 
+        $streaks = $this->calculateStreaks($playerId);
+
+        $winLossRatio = $this->getWinLossRatio($playerId);
+
         return $this->render(
             'index/player_stats.html.twig',
-            ['player' => $player, 'rounds' => $rounds, 'partners' => $partners]
+            [
+                'player' => $player,
+                'rounds' => $rounds,
+                'partners' => $partners,
+                'longestWinStreak' => $streaks['win_streak'],
+                'longestLosingStreak' => $streaks['loss_streak'],
+                'winLossRatio' => $winLossRatio
+            ]
         );
+    }
+
+    private function calculateStreaks($playerId)
+    {
+        $sql1 = "SELECT round.creation_date AS GameDate, 
+              GR.points AS Result
+            FROM participant GR
+            JOIN round ON round.id = GR.round_id
+            WHERE GR.player_id = :playerId";
+
+        $sql = $this->getEm()->getConnection()
+            ->prepare($sql1);
+        $sql->bindValue('playerId', $playerId);
+        $sql->execute();
+        $data = $sql->fetchAll();
+
+        $maxWinStreak = 0;
+        $_win_streak = 0;
+        $maxLossStreak = 0;
+        $_loss_streak = 0;
+
+        foreach($data as $value){
+            if($value['Result'] >= 0) {
+                $_win_streak++;
+                if($_win_streak > $maxWinStreak){
+                    $maxWinStreak = $_win_streak;
+                }
+                $_loss_streak = 0;
+            }
+            else if($value['Result'] < 0) {
+                $_loss_streak++;
+                if($_loss_streak > $maxLossStreak) {
+                    $maxLossStreak = $_loss_streak;
+                }
+                $_win_streak = 0;
+            }
+        }
+        return array('win_streak' => $maxWinStreak, 'loss_streak' => $maxLossStreak);
     }
 
     /**
@@ -377,5 +426,27 @@ class DokoController extends Controller
                 ORDER BY points DESC;';
 
         return $this->getEm()->getConnection()->executeQuery($sql, ['playerId' => $player->getId()])->fetchAll();
+    }
+
+    /**
+     * @param $playerId
+     * @return mixed
+     */
+    private function getWinLossRatio($playerId)
+    {
+        $sql = "SELECT 
+                    SUM(points > 0) AS wins, 
+                    SUM(points < 0) AS loss
+                    FROM `participant` 
+                    WHERE player_id = :playerId
+                 GROUP BY player_id";
+
+        $sql = $this->getEm()->getConnection()
+            ->prepare($sql);
+        $sql->bindValue('playerId', $playerId);
+        $sql->execute();
+
+        $winLossRatio = $sql->fetch();
+        return $winLossRatio;
     }
 }
