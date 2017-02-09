@@ -5,6 +5,9 @@
     <div class="h3">
         Played rounds: {{ rounds.getTotalItemCount }}
     </div>
+    {% if winLossRatio %}
+        <h4>Win:Loss Ratio: {{ winLossRatio.wins }}:{{ winLossRatio.loss }}</h4>
+    {% endif %}
     <div class="table-responsive">
         <table class="table table-bordered table-striped table-condensed">
             <thead>
@@ -29,7 +32,12 @@
                             {% endif %}
                         </td>
                     {% endfor %}
-                    <td>{{ round.points }}</td>
+                    <td>
+                        {{ round.points }}
+                        {% if round.bock %}
+                            <strong>B</strong> {{ round.points * 2 }}
+                        {% endif %}
+                    </td>
                 </tr>
 
             {% endfor %}
@@ -38,6 +46,14 @@
     </div>
     <div>
         {{ knp_pagination_render(rounds) }}
+    </div>
+    <div>
+        {% if longestWinStreak %}
+            <h4>Longest Win Streak: {{ longestWinStreak }}</h4>
+        {% endif %}
+        {% if longestLosingStreak %}
+            <h4>Longest Losing Streak: {{ longestLosingStreak }}</h4>
+        {% endif %}
     </div>
     <div>
         <h2>Best Partners</h2>

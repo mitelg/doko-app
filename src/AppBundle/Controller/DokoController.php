@@ -16,6 +16,7 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\FormBuilder;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -48,6 +49,7 @@ class DokoController extends Controller
     {
         $player = new Player();
 
+        /* @var FormInterface $playerForm */
         $playerForm = $this->createFormBuilder($player)
             ->add('name', TextType::class)
             ->add('save', SubmitType::class, ['label' => 'Create Player'])
@@ -175,10 +177,58 @@ class DokoController extends Controller
 
         $partners = $this->getPartnersOfPlayer($player);
 
+        $streaks = $this->calculateStreaks($playerId);
+
+        $winLossRatio = $this->getWinLossRatio($playerId);
+
         return $this->render(
             'index/player_stats.html.twig',
-            ['player' => $player, 'rounds' => $rounds, 'partners' => $partners]
+            [
+                'player' => $player,
+                'rounds' => $rounds,
+                'partners' => $partners,
+                'longestWinStreak' => $streaks['win_streak'],
+                'longestLosingStreak' => $streaks['loss_streak'],
+                'winLossRatio' => $winLossRatio
+            ]
         );
+    }
+
+    private function calculateStreaks($playerId)
+    {
+        $sql1 = 'SELECT round.creation_date AS GameDate, GR.points AS Result
+                 FROM participant GR
+                 JOIN round ON round.id = GR.round_id
+                 WHERE GR.player_id = :playerId';
+
+        $sql = $this->getEm()->getConnection()
+            ->prepare($sql1);
+        $sql->bindValue('playerId', $playerId);
+        $sql->execute();
+        $data = $sql->fetchAll();
+
+        $maxWinStreak = 0;
+        $_win_streak = 0;
+        $maxLossStreak = 0;
+        $_loss_streak = 0;
+
+        foreach ($data as $value) {
+            if ($value['Result'] >= 0) {
+                $_win_streak++;
+                if ($_win_streak > $maxWinStreak) {
+                    $maxWinStreak = $_win_streak;
+                }
+                $_loss_streak = 0;
+            } elseif ($value['Result'] < 0) {
+                $_loss_streak++;
+                if ($_loss_streak > $maxLossStreak) {
+                    $maxLossStreak = $_loss_streak;
+                }
+                $_win_streak = 0;
+            }
+        }
+
+        return ['win_streak' => $maxWinStreak, 'loss_streak' => $maxLossStreak];
     }
 
     /**
@@ -203,8 +253,8 @@ class DokoController extends Controller
 
         // separate the four players into winners and losers
         for ($i = 1; $i <= 4; $i++) {
-            $playerId = $formData['player' . $i];
-            if (in_array($playerId, $playerIds)) {
+            $playerId = (int) $formData['player' . $i];
+            if (in_array($playerId, $playerIds, true)) {
                 // if one player is selected twice, throw error
                 return -3;
             }
@@ -245,7 +295,7 @@ class DokoController extends Controller
     private function createPointsForm(array $playerIds)
     {
         if (empty($playerIds)) {
-            $playerIds = [1,2,3,4];
+            $playerIds = [1, 2, 3, 4];
         }
 
         $players = $this->getPlayers();
@@ -254,22 +304,21 @@ class DokoController extends Controller
             $playersArray[$player->getName()] = $player->getId();
         }
 
+        /** @var FormBuilder $pointsForm */
         $pointsForm = $this->createFormBuilder()
             ->add('points', IntegerType::class)
             ->add('bockRound', CheckboxType::class, ['required' => false]);
 
         // create four players
         for ($i = 1; $i <= 4; $i++) {
-            $pointsForm->add('player' . $i, ChoiceType::class, ['choices' => $playersArray, 'data' => $playerIds[$i-1]]);
+            $pointsForm->add('player' . $i, ChoiceType::class, ['choices' => $playersArray, 'data' => $playerIds[$i - 1]]);
             $pointsForm->add('player' . $i . 'win', CheckboxType::class, ['required' => false]);
         }
 
         $pointsForm->add('saveAndNew', SubmitType::class, ['label' => 'Save points and enter new'])
             ->add('save', SubmitType::class, ['label' => 'Save points']);
 
-        $pointsForm = $pointsForm->getForm();
-
-        return $pointsForm;
+        return $pointsForm->getForm();
     }
 
     /**
@@ -377,5 +426,23 @@ class DokoController extends Controller
                 ORDER BY points DESC;';
 
         return $this->getEm()->getConnection()->executeQuery($sql, ['playerId' => $player->getId()])->fetchAll();
+    }
+
+    /**
+     * @param $playerId
+     * @return mixed
+     */
+    private function getWinLossRatio($playerId)
+    {
+        $sql = 'SELECT SUM(points > 0) AS wins, SUM(points < 0) AS loss
+                FROM `participant` 
+                WHERE player_id = :playerId
+                GROUP BY player_id';
+
+        $sql = $this->getEm()->getConnection()->prepare($sql);
+        $sql->bindValue('playerId', $playerId);
+        $sql->execute();
+
+        return $sql->fetch();
     }
 }
