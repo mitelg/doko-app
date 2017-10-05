@@ -294,11 +294,15 @@ class DokoController extends Controller
      */
     private function createPointsForm(array $playerIds)
     {
+        $players = $this->getPlayers();
+
         if (empty($playerIds)) {
-            $playerIds = [1, 2, 3, 4];
+            $playersForInitialFilling = array_slice($players, 0, 4);
+            foreach ($playersForInitialFilling as $initialPlayer) {
+                $playerIds[] = $initialPlayer->getId();
+            }
         }
 
-        $players = $this->getPlayers();
         $playersArray = [];
         foreach ($players as $player) {
             $playersArray[$player->getName()] = $player->getId();
