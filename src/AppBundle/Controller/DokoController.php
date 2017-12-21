@@ -1,4 +1,27 @@
 <?php
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) Michael Telgmann
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 
 namespace AppBundle\Controller;
 
@@ -19,18 +42,20 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilder;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\SubmitButton;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class DokoController extends Controller
 {
     /**
-     * @var EntityManager $em
+     * @var EntityManager
      */
     private $em;
 
     /**
      * @Route("/")
+     *
      * @return Response
      */
     public function indexAction()
@@ -42,7 +67,13 @@ class DokoController extends Controller
      * creates a new player
      *
      * @Route("/createPlayer")
+     *
      * @param Request $request
+     *
+     * @throws \LogicException
+     * @throws \Doctrine\ORM\ORMInvalidArgumentException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     *
      * @return Response
      */
     public function createPlayerAction(Request $request)
@@ -57,7 +88,7 @@ class DokoController extends Controller
 
         $playerForm->handleRequest($request);
 
-        if ($playerForm->isValid()) {
+        if ($playerForm->isSubmitted()) {
             $this->getEm()->persist($player);
             $this->getEm()->flush();
 
@@ -74,7 +105,14 @@ class DokoController extends Controller
      * enter a new game with its points
      *
      * @Route("/enterPoints")
+     *
      * @param Request $request
+     *
+     * @throws \LogicException
+     * @throws \Doctrine\ORM\ORMInvalidArgumentException
+     * @throws \OutOfBoundsException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     *
      * @return Response
      */
     public function enterPointsAction(Request $request)
@@ -109,10 +147,7 @@ class DokoController extends Controller
                 );
             }
 
-            $round = new Round();
-            $round->setBock($pointsForm->get('bockRound')->getData());
-            $round->setCreationDate(new DateTime());
-            $round->setPoints($pointsOfGame);
+            $round = new Round($pointsOfGame, $pointsForm->get('bockRound')->getData());
 
             $playerIds = [];
             // if data is okay, save points to database
@@ -131,7 +166,9 @@ class DokoController extends Controller
 
             $this->get('session')->set('playerIds', $playerIds);
 
-            $nextAction = $pointsForm->get('save')->isClicked() ? 'app_doko_showscoreboard' : 'app_doko_enterpoints';
+            /** @var SubmitButton $saveButton */
+            $saveButton = $pointsForm->get('save');
+            $nextAction = $saveButton->isClicked() ? 'app_doko_showscoreboard' : 'app_doko_enterpoints';
 
             return $this->redirectToRoute($nextAction);
         }
@@ -146,7 +183,11 @@ class DokoController extends Controller
      * Show scoreboard
      *
      * @Route("/showScoreboard")
+     *
      * @param Request $request
+     *
+     * @throws \LogicException
+     *
      * @return Response
      */
     public function showScoreboardAction(Request $request)
@@ -165,8 +206,13 @@ class DokoController extends Controller
      * Show player stats
      *
      * @Route("/playerstats/{playerId}")
+     *
      * @param Request $request
-     * @param int $playerId
+     * @param int     $playerId
+     *
+     * @throws \LogicException
+     * @throws \Doctrine\DBAL\DBALException
+     *
      * @return Response
      */
     public function getPlayerStats(Request $request, $playerId)
@@ -189,11 +235,19 @@ class DokoController extends Controller
                 'partners' => $partners,
                 'longestWinStreak' => $streaks['win_streak'],
                 'longestLosingStreak' => $streaks['loss_streak'],
-                'winLossRatio' => $winLossRatio
+                'winLossRatio' => $winLossRatio,
             ]
         );
     }
 
+    /**
+     * @param int $playerId
+     *
+     * @throws \LogicException
+     * @throws \Doctrine\DBAL\DBALException
+     *
+     * @return array
+     */
     private function calculateStreaks($playerId)
     {
         $sql1 = 'SELECT round.creation_date AS GameDate, GR.points AS Result
@@ -214,13 +268,13 @@ class DokoController extends Controller
 
         foreach ($data as $value) {
             if ($value['Result'] >= 0) {
-                $_win_streak++;
+                ++$_win_streak;
                 if ($_win_streak > $maxWinStreak) {
                     $maxWinStreak = $_win_streak;
                 }
                 $_loss_streak = 0;
             } elseif ($value['Result'] < 0) {
-                $_loss_streak++;
+                ++$_loss_streak;
                 if ($_loss_streak > $maxLossStreak) {
                     $maxLossStreak = $_loss_streak;
                 }
@@ -237,6 +291,7 @@ class DokoController extends Controller
      * also checks if given data is valid
      *
      * @param array $formData
+     *
      * @return array|int
      */
     private function calculateGameResult(array $formData)
@@ -252,7 +307,7 @@ class DokoController extends Controller
         }
 
         // separate the four players into winners and losers
-        for ($i = 1; $i <= 4; $i++) {
+        for ($i = 1; $i <= 4; ++$i) {
             $playerId = (int) $formData['player' . $i];
             if (in_array($playerId, $playerIds, true)) {
                 // if one player is selected twice, throw error
@@ -270,26 +325,35 @@ class DokoController extends Controller
         if (count($winners) === 0) {
             // there is no winner selected
             return -1;
-        } elseif (count($winners) === 1) {
+        }
+
+        if (count($winners) === 1) {
             // there is only one winner, so he/she gets more points
             $winners[0]['points'] *= 3;
 
             return array_merge($winners, $losers);
-        } elseif (count($winners) === 2) {
+        }
+
+        if (count($winners) === 2) {
             return array_merge($winners, $losers);
-        } elseif (count($winners) === 3) {
+        }
+
+        if (count($winners) === 3) {
             // there is only one loser, so he/she loses more points
             $losers[0]['points'] *= 3;
 
             return array_merge($winners, $losers);
-        } else {
-            // all four players can not be winners
-            return -2;
         }
+
+        // all four players can not be winners
+        return -2;
     }
 
     /**
      * @param array $playerIds
+     *
+     * @throws \LogicException
+     *
      * @return FormInterface
      */
     private function createPointsForm(array $playerIds)
@@ -314,7 +378,7 @@ class DokoController extends Controller
             ->add('bockRound', CheckboxType::class, ['required' => false]);
 
         // create four players
-        for ($i = 1; $i <= 4; $i++) {
+        for ($i = 1; $i <= 4; ++$i) {
             $pointsForm->add('player' . $i, ChoiceType::class, ['choices' => $playersArray, 'data' => $playerIds[$i - 1]]);
             $pointsForm->add('player' . $i . 'win', CheckboxType::class, ['required' => false]);
         }
@@ -326,6 +390,8 @@ class DokoController extends Controller
     }
 
     /**
+     * @throws \LogicException
+     *
      * @return EntityManager
      */
     private function getEm()
@@ -340,6 +406,8 @@ class DokoController extends Controller
     }
 
     /**
+     * @throws \LogicException
+     *
      * @return Player[]
      */
     private function getPlayers()
@@ -354,6 +422,9 @@ class DokoController extends Controller
 
     /**
      * @param int $id
+     *
+     * @throws \LogicException
+     *
      * @return Player
      */
     private function getPlayerById($id)
@@ -365,6 +436,9 @@ class DokoController extends Controller
 
     /**
      * @param Request $request
+     *
+     * @throws \LogicException
+     *
      * @return PaginationInterface
      */
     private function getRounds(Request $request)
@@ -379,16 +453,18 @@ class DokoController extends Controller
         $paginator = $this->get('knp_paginator');
         $pagination = $paginator->paginate(
             $query,
-            $request->query->getInt('page', 1),
-            10
+            $request->query->getInt('page', 1)
         );
 
         return $pagination;
     }
 
     /**
-     * @param Player $player
+     * @param Player  $player
      * @param Request $request
+     *
+     * @throws \LogicException
+     *
      * @return PaginationInterface
      */
     private function getRoundsByPlayer(Player $player, Request $request)
@@ -406,8 +482,7 @@ class DokoController extends Controller
         $paginator = $this->get('knp_paginator');
         $pagination = $paginator->paginate(
             $query,
-            $request->query->getInt('page', 1),
-            10
+            $request->query->getInt('page', 1)
         );
 
         return $pagination;
@@ -415,6 +490,10 @@ class DokoController extends Controller
 
     /**
      * @param Player $player
+     *
+     * @throws \LogicException
+     * @throws \Doctrine\DBAL\DBALException
+     *
      * @return array
      */
     private function getPartnersOfPlayer(Player $player)
@@ -433,8 +512,12 @@ class DokoController extends Controller
     }
 
     /**
-     * @param $playerId
-     * @return mixed
+     * @param int $playerId
+     *
+     * @throws \LogicException
+     * @throws \Doctrine\DBAL\DBALException
+     *
+     * @return array
      */
     private function getWinLossRatio($playerId)
     {
