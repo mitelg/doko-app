@@ -1,8 +1,14 @@
 {% if pageCount > 1 %}
     <ul class="pagination">
 
-        <li class="disabled">
-            <span>&laquo;&nbsp;Previous</span>
+        <li>
+            <span class="previous">
+                {% if startPage == 1 %}
+                    Previous
+                {% else %}
+                    <a href="{{ path(route, query|merge({'page': previous})) }}">Previous</a>
+                {% endif %}
+            </span>
         </li>
 
         {% if startPage > 1 %}
@@ -50,8 +56,14 @@
             </li>
         {% endif %}
 
-        <li class="disabled">
-            <span>Next&nbsp;&raquo;</span>
+        <li>
+            <span class="next">
+                {% if startPage == pageCount %}
+                    Next
+                {% else %}
+                    <a href="{{ path(route, query|merge({'page': next})) }}">Next</a>
+                {% endif %}
+            </span>
         </li>
     </ul>
 {% endif %}
