@@ -23,4 +23,3 @@ $ php bin/console doctrine:schema:create
 # TODO
 
 - extract logic from controller into a service
-- styling of HTML output

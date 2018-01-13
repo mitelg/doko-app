@@ -1,7 +1,7 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <h1>Create new player</h1>
+    <h1>{{ 'title'|trans({}, 'create_player') }}</h1>
 
     {{ form_start(playerForm, {'attr': {'class': 'form-horizontal form-group'}}) }}
     {% if not playerForm.vars.valid %}
@@ -13,7 +13,7 @@
         </div>
     {% endif %}
     <div class="form-group">
-        {{ form_label(playerForm.name, 'Name', {'label_attr': {'class': 'col-sm-2 control-label'}}) }}
+        {{ form_label(playerForm.name, 'label'|trans({}, 'create_player') , {'label_attr': {'class': 'col-sm-2 control-label'}}) }}
         <div class="col-sm-10">
             {{ form_widget(playerForm.name, {'attr': {'class': 'form-control'}}) }}
         </div>
@@ -23,6 +23,6 @@
     </div>
     {{ form_end(playerForm) }}
     <div class="form-group btn-group-lg">
-        <a href="{{ path('app_doko_index') }}" class="btn btn-primary">Back to homepage</a>
+        <a href="{{ path('app_doko_index') }}" class="btn btn-primary">{{ 'homepage'|trans({}, 'buttons') }}</a>
     </div>
 {% endblock %}

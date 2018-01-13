@@ -2,15 +2,15 @@
 
 {% block body %}
     <div>
-        <h1>Doko App</h1>
+        <h1>{{ 'title'|trans({}, 'index') }}</h1>
     </div>
     <div class="form-group btn-group-lg">
-        <a href="{{ path('app_doko_showscoreboard') }}" class="btn btn-primary">Show scoreboard</a>
+        <a href="{{ path('app_doko_showscoreboard') }}" class="btn btn-primary">{{ 'scoreboard'|trans({}, 'buttons') }}</a>
     </div>
     <div class="form-group btn-group-lg">
-        <a href="{{ path('app_doko_enterpoints') }}" class="btn btn-primary">Enter points</a>
+        <a href="{{ path('app_doko_enterpoints') }}" class="btn btn-primary">{{ 'enter_points'|trans({}, 'buttons') }}</a>
     </div>
     <div class="form-group btn-group-lg">
-        <a href="{{ path('app_doko_createplayer') }}" class="btn btn-default">Create new player</a>
+        <a href="{{ path('app_doko_createplayer') }}" class="btn btn-default">{{ 'create_player'|trans({}, 'index') }}</a>
     </div>
 {% endblock %}

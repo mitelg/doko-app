@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" target-language="en" datatype="plaintext" original="file.ext">
+        <body>
+            <trans-unit id="0" resname="played_rounds">
+                <source>played_rounds</source>
+                <target>Played rounds:</target>
+            </trans-unit>
+
+            <trans-unit id="1" resname="win_loss">
+                <source>win_loss</source>
+                <target>win:loss ratio:</target>
+            </trans-unit>
+
+            <trans-unit id="2" resname="round_column_header">
+                <source>round_column_header</source>
+                <target>Round #</target>
+            </trans-unit>
+
+            <trans-unit id="3" resname="player_column_header">
+                <source>player_column_header</source>
+                <target>Player</target>
+            </trans-unit>
+
+            <trans-unit id="4" resname="points_column_header">
+                <source>points_column_header</source>
+                <target>Points</target>
+            </trans-unit>
+
+            <trans-unit id="5" resname="longest_win_streak_label">
+                <source>longest_win_streak_label</source>
+                <target>Longest win streak:</target>
+            </trans-unit>
+
+            <trans-unit id="6" resname="longest_losing_streak_label">
+                <source>longest_losing_streak_label</source>
+                <target>Longest losing streak:</target>
+            </trans-unit>
+
+            <trans-unit id="7" resname="best_partners_title">
+                <source>best_partners_title</source>
+                <target>Best partners</target>
+            </trans-unit>
+
+            <trans-unit id="8" resname="best_partners_row">
+                <source>best_partners_row</source>
+                <target>%name% with %points% points</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

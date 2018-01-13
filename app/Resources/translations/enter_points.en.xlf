@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" target-language="en" datatype="plaintext" original="file.ext">
+        <body>
+            <trans-unit id="0" resname="title">
+                <source>title</source>
+                <target>Enter points</target>
+            </trans-unit>
+
+            <trans-unit id="1" resname="points">
+                <source>points</source>
+                <target>Points</target>
+            </trans-unit>
+
+            <trans-unit id="2" resname="bock">
+                <source>bock</source>
+                <target>Bock round?</target>
+            </trans-unit>
+
+            <trans-unit id="3" resname="players">
+                <source>players</source>
+                <target>Players</target>
+            </trans-unit>
+
+            <trans-unit id="4" resname="win">
+                <source>win</source>
+                <target>Win?</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

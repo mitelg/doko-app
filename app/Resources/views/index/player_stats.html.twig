@@ -3,20 +3,20 @@
 {% block body %}
     <h1>{{ player.name }}</h1>
     <div class="h3">
-        Played rounds: {{ rounds.getTotalItemCount }}
+        {{ 'played_rounds'|trans({}, 'player_stats') }} {{ rounds.getTotalItemCount }}
     </div>
     {% if winLossRatio %}
-        <h4>Win:Loss Ratio: {{ winLossRatio.wins }}:{{ winLossRatio.loss }}</h4>
+        <h4>{{ 'win_loss'|trans({}, 'player_stats') }} {{ winLossRatio.wins }}:{{ winLossRatio.loss }}</h4>
     {% endif %}
     <div class="table-responsive">
         <table class="table table-bordered table-striped table-condensed">
             <thead>
             <tr>
-                <th class="text-center">{{ knp_pagination_sortable(rounds, 'Round #', 'round.id') }}</th>
+                <th class="text-center">{{ knp_pagination_sortable(rounds, 'round_column_header'|trans({}, 'player_stats'), 'round.id') }}</th>
                 {% for i in 1..4 %}
-                    <th class="text-center">Player {{ i }}</th>
+                    <th class="text-center">{{ 'player_column_header'|trans({}, 'player_stats') }} {{ i }}</th>
                 {% endfor %}
-                <th class="text-center">{{ knp_pagination_sortable(rounds, 'Points', 'round.points') }}</th>
+                <th class="text-center">{{ knp_pagination_sortable(rounds, 'points_column_header'|trans({}, 'player_stats'), 'round.points') }}</th>
             </tr>
             </thead>
             <tbody>
@@ -49,17 +49,17 @@
     </div>
     <div>
         {% if longestWinStreak %}
-            <h4>Longest Win Streak: {{ longestWinStreak }}</h4>
+            <h4>{{ 'longest_win_streak_label'|trans({}, 'player_stats') }} {{ longestWinStreak }}</h4>
         {% endif %}
         {% if longestLosingStreak %}
-            <h4>Longest Losing Streak: {{ longestLosingStreak }}</h4>
+            <h4>{{ 'longest_losing_streak_label'|trans({}, 'player_stats') }} {{ longestLosingStreak }}</h4>
         {% endif %}
     </div>
     <div>
-        <h2>Best Partners</h2>
+        <h2>{{ 'best_partners_title'|trans({}, 'player_stats') }}</h2>
         <ul class="list-group">
             {% for partner in partners %}
-                <li class="list-group-item">{{ loop.index }}. {{ partner.name }} with {{ partner.points }} points</li>
+                <li class="list-group-item">{{ loop.index }}. {% trans with {'%name%': partner.name, '%points%': partner.points} from 'player_stats' %}best_partners_row{% endtrans %}</li>
             {% endfor %}
         </ul>
     </div>

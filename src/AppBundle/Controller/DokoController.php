@@ -79,11 +79,12 @@ class DokoController extends Controller
     public function createPlayerAction(Request $request)
     {
         $player = new Player();
+        $buttonTranslation = $this->get('translator')->trans('create', [], 'create_player');
 
         /* @var FormInterface $playerForm */
         $playerForm = $this->createFormBuilder($player)
             ->add('name', TextType::class)
-            ->add('save', SubmitType::class, ['label' => 'Create Player'])
+            ->add('save', SubmitType::class, ['label' => $buttonTranslation])
             ->getForm();
 
         $playerForm->handleRequest($request);
@@ -383,8 +384,10 @@ class DokoController extends Controller
             $pointsForm->add('player' . $i . 'win', CheckboxType::class, ['required' => false]);
         }
 
-        $pointsForm->add('saveAndNew', SubmitType::class, ['label' => 'Save points and enter new'])
-            ->add('save', SubmitType::class, ['label' => 'Save points']);
+        $translator = $this->get('translator');
+
+        $pointsForm->add('saveAndNew', SubmitType::class, ['label' => $translator->trans('save_and_new', [], 'buttons')])
+            ->add('save', SubmitType::class, ['label' => $translator->trans('save', [], 'buttons')]);
 
         return $pointsForm->getForm();
     }

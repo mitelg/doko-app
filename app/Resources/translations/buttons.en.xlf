@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" target-language="en" datatype="plaintext" original="file.ext">
+        <body>
+            <trans-unit id="0" resname="save_and_new">
+                <source>save_and_new</source>
+                <target>Save points and enter new</target>
+            </trans-unit>
+
+            <trans-unit id="1" resname="save">
+                <source>save</source>
+                <target>Save points</target>
+            </trans-unit>
+
+            <trans-unit id="2" resname="scoreboard">
+                <source>scoreboard</source>
+                <target>Show scoreboard</target>
+            </trans-unit>
+
+            <trans-unit id="3" resname="homepage">
+                <source>homepage</source>
+                <target>Back to homepage</target>
+            </trans-unit>
+
+            <trans-unit id="4" resname="enter_points">
+                <source>enter_points</source>
+                <target>Enter points</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

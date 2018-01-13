@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" target-language="en" datatype="plaintext" original="file.ext">
+        <body>
+            <trans-unit id="0" resname="title">
+                <source>title</source>
+                <target>Create new player</target>
+            </trans-unit>
+
+            <trans-unit id="1" resname="label">
+                <source>label</source>
+                <target>Name:</target>
+            </trans-unit>
+
+            <trans-unit id="2" resname="create">
+                <source>create</source>
+                <target>Create player</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

@@ -1,7 +1,7 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <h1>Enter points</h1>
+    <h1>{{ 'title'|trans({}, 'enter_points') }}</h1>
     {{ form_start(pointsForm, {'attr': {'class': 'form-horizontal form-group'}}) }}
     {% if not pointsForm.vars.valid %}
         <div class="form-group">
@@ -12,23 +12,23 @@
         </div>
     {% endif %}
     <div class="form-group enter-points--label-line-height">
-        {{ form_label(pointsForm.points, 'Points', {'label_attr': {'class': 'col-xs-6 control-label'}}) }}
+        {{ form_label(pointsForm.points, 'points'|trans({}, 'enter_points'), {'label_attr': {'class': 'col-xs-6 control-label'}}) }}
         <div class="col-xs-6">
             {{ form_widget(pointsForm.points, {'attr': {'class': 'form-control'}}) }}
         </div>
     </div>
     <div class="form-group enter-points--label-line-height">
-        {{ form_label(pointsForm.bockRound, 'Bock round?', {'label_attr': {'class': 'col-xs-6 control-label'}}) }}
+        {{ form_label(pointsForm.bockRound, 'bock'|trans({}, 'enter_points'), {'label_attr': {'class': 'col-xs-6 control-label'}}) }}
         <div class="col-xs-6">
             {{ form_widget(pointsForm.bockRound, {'attr': {'class': 'form-control'}}) }}
         </div>
     </div>
     <div class="form-group">
         <div class="col-xs-6">
-            <strong>Players</strong>
+            <strong>{{ 'players'|trans({}, 'enter_points') }}</strong>
         </div>
         <div class="col-xs-6">
-            <strong>Win?</strong>
+            <strong>{{ 'win'|trans({}, 'enter_points') }}</strong>
         </div>
     </div>
     <div class="form-group">
@@ -71,9 +71,9 @@
     </div>
     {{ form_end(pointsForm) }}
     <div class="form-group btn-group-lg">
-        <a href="{{ path('app_doko_showscoreboard') }}" class="btn btn-default">Show scoreboard</a>
+        <a href="{{ path('app_doko_showscoreboard') }}" class="btn btn-default">{{ 'scoreboard'|trans({}, 'buttons') }}</a>
     </div>
     <div class="form-group btn-group-lg">
-        <a href="{{ path('app_doko_index') }}" class="btn btn-default">Back to homepage</a>
+        <a href="{{ path('app_doko_index') }}" class="btn btn-default">{{ 'homepage'|trans({}, 'buttons') }}</a>
     </div>
 {% endblock %}
