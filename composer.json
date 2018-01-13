@@ -2,6 +2,8 @@
     "name": "mt/doko.app",
     "license": "MIT",
     "type": "project",
+    "description": "small web app to save points for players of the german card game 'Doppelkopf'",
+    "keywords": ["symfony", "doppelkopf"],
     "autoload": {
         "psr-4": {
             "": "src/"
