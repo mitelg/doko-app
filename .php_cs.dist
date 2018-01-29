@@ -1,12 +1,8 @@
 <?php
 
 $finder = PhpCsFixer\Finder::create()
-    ->in(__DIR__.'/app')
-    ->in(__DIR__.'/bin')
-    ->in(__DIR__.'/src')
-    ->in(__DIR__.'/tests')
-    ->in(__DIR__.'/web')
-;
+    ->exclude(__DIR__.'/var')
+    ->in(__DIR__);
 
 $header = <<<EOF
 The MIT License (MIT)

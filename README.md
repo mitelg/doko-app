@@ -13,7 +13,8 @@ based on Symfony 3
 ```sh
 $ composer install
 ```
-- maybe adjust database settings in `/app/config/parameters.yml`
+- create `.env file with `cp .env.dist .env``
+- make adjustments according to your setup (e.g. db connection)
 ```sh
 $ php bin/console doctrine:database:create
 $ php bin/console doctrine:schema:create
