@@ -68,9 +68,6 @@
             "ref": "bb31a3bbec00a8fc8aa1c9fbf9b0ef9fc492f93d"
         }
     },
-    "gecko-packages/gecko-php-unit": {
-        "version": "v3.1"
-    },
     "jdorn/sql-formatter": {
         "version": "v1.2.17"
     },
@@ -78,7 +75,7 @@
         "version": "1.3.5"
     },
     "knplabs/knp-paginator-bundle": {
-        "version": "v2.7.1"
+        "version": "v2.7.2"
     },
     "ocramius/package-versions": {
         "version": "1.2.0"
