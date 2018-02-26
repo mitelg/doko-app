@@ -54,7 +54,8 @@
             "assets:install --symlink --relative %PUBLIC_DIR%": "symfony-cmd"
         },
         "post-install-cmd": [
-            "@auto-scripts"
+            "@auto-scripts",
+            "./.githooks/install_hooks.sh"
         ],
         "post-update-cmd": [
             "@auto-scripts"
