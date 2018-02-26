@@ -217,7 +217,7 @@ class DokoController extends Controller
      *
      * @return Response
      */
-    public function getPlayerStats(Request $request, $playerId): Response
+    public function getPlayerStats(Request $request, int $playerId): Response
     {
         $player = $this->getPlayerById($playerId);
 
@@ -431,7 +431,7 @@ class DokoController extends Controller
      *
      * @return Player
      */
-    private function getPlayerById($id): Player
+    private function getPlayerById(int $id): Player
     {
         $playerRepo = $this->getEm()->getRepository('App:Player');
 
@@ -523,7 +523,7 @@ class DokoController extends Controller
      *
      * @return array|bool
      */
-    private function getWinLossRatio($playerId)
+    private function getWinLossRatio(int $playerId)
     {
         $sql = 'SELECT SUM(points > 0) AS wins, SUM(points < 0) AS loss
                 FROM `participant` 

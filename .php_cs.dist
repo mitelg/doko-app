@@ -1,7 +1,7 @@
 <?php
 
 $finder = PhpCsFixer\Finder::create()
-    ->exclude(__DIR__.'/var')
+    ->exclude(__DIR__ . '/var')
     ->in(__DIR__);
 
 $header = <<<EOF
@@ -45,5 +45,4 @@ return PhpCsFixer\Config::create()
         'array_syntax' => ['syntax' => 'short'],
         'yoda_style' => ['equal' => false, 'identical' => false, 'less_and_greater' => false],
     ])
-    ->setFinder($finder)
-;
+    ->setFinder($finder);
