@@ -1,9 +1,9 @@
 doko-app
 ========
 
-this is a small web app to save points for players of the german card game "Doppelkopf"
+This is a small web app to save points for players of the german card game "Doppelkopf"
 
-based on Symfony 3
+Based on Symfony 4.1
 
 # Installation
 
@@ -14,12 +14,20 @@ based on Symfony 3
 $ composer install
 ```
 - create `.env file with `cp .env.dist .env``
-- make adjustments according to your setup (e.g. db connection)
+- make adjustments according to your setup (e.g. DB connection)
 ```sh
 $ php bin/console doctrine:database:create
 $ php bin/console doctrine:schema:create
 ```
-- call `<your-domain>/doko-app/web/`
+
+# Development
+Use the symfony server component to run the application
+```sh
+$ php bin/console server:run
+$ php bin/console server:stop
+```
+
+or call `<your-domain>/doko-app/public/`
 
 # TODO
 
