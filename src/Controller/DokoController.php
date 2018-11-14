@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * The MIT License (MIT)
  *
@@ -29,10 +29,11 @@ use App\Entity\Participant;
 use App\Entity\Player;
 use App\Entity\Round;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\Pagination\PaginationInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
@@ -44,18 +45,45 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\SubmitButton;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\Translation\TranslatorInterface;
 
-class DokoController extends Controller
+class DokoController extends AbstractController
 {
     /**
-     * @var EntityManager
+     * @var EntityManagerInterface
      */
     private $em;
 
     /**
+     * @var TranslatorInterface
+     */
+    private $translator;
+
+    /**
+     * @var SessionInterface
+     */
+    private $session;
+
+    /**
+     * @var PaginatorInterface
+     */
+    private $paginator;
+
+    public function __construct(
+        EntityManagerInterface $em,
+        TranslatorInterface $translator,
+        SessionInterface $session,
+        PaginatorInterface $paginator
+    ) {
+        $this->em = $em;
+        $this->translator = $translator;
+        $this->session = $session;
+        $this->paginator = $paginator;
+    }
+
+    /**
      * @Route("/")
-     *
-     * @return Response
      */
     public function indexAction(): Response
     {
@@ -66,20 +94,11 @@ class DokoController extends Controller
      * creates a new player
      *
      * @Route("/createPlayer")
-     *
-     * @param Request $request
-     *
-     * @throws \LogicException
-     * @throws \Doctrine\ORM\ORMInvalidArgumentException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
-     *
-     * @return Response
      */
     public function createPlayerAction(Request $request): Response
     {
         $player = new Player();
-        $buttonTranslation = $this->get('translator')->trans('create', [], 'create_player');
+        $buttonTranslation = $this->translator->trans('create', [], 'create_player');
 
         /* @var FormInterface $playerForm */
         $playerForm = $this->createFormBuilder($player)
@@ -90,8 +109,8 @@ class DokoController extends Controller
         $playerForm->handleRequest($request);
 
         if ($playerForm->isSubmitted()) {
-            $this->getEm()->persist($player);
-            $this->getEm()->flush($player);
+            $this->em->persist($player);
+            $this->em->flush();
 
             return $this->redirectToRoute('app_doko_index');
         }
@@ -106,20 +125,10 @@ class DokoController extends Controller
      * enter a new game with its points
      *
      * @Route("/enterPoints")
-     *
-     * @param Request $request
-     *
-     * @throws \Doctrine\ORM\ORMInvalidArgumentException
-     * @throws \OutOfBoundsException
-     * @throws \LogicException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
-     *
-     * @return Response
      */
     public function enterPointsAction(Request $request): Response
     {
-        $pointsForm = $this->createPointsForm($this->get('session')->get('playerIds', []));
+        $pointsForm = $this->createPointsForm($this->session->get('playerIds', []));
 
         $pointsForm->handleRequest($request);
 
@@ -163,10 +172,10 @@ class DokoController extends Controller
                 $participants->add($participant);
             }
             $round->setParticipants($participants);
-            $this->getEm()->persist($round);
-            $this->getEm()->flush($round);
+            $this->em->persist($round);
+            $this->em->flush();
 
-            $this->get('session')->set('playerIds', $playerIds);
+            $this->session->set('playerIds', $playerIds);
 
             /** @var SubmitButton $saveButton */
             $saveButton = $pointsForm->get('save');
@@ -185,12 +194,6 @@ class DokoController extends Controller
      * Show scoreboard
      *
      * @Route("/showScoreboard")
-     *
-     * @param Request $request
-     *
-     * @throws \LogicException
-     *
-     * @return Response
      */
     public function showScoreboardAction(Request $request): Response
     {
@@ -208,14 +211,6 @@ class DokoController extends Controller
      * Show player stats
      *
      * @Route("/playerstats/{playerId}")
-     *
-     * @param Request $request
-     * @param int     $playerId
-     *
-     * @throws \LogicException
-     * @throws \Doctrine\DBAL\DBALException
-     *
-     * @return Response
      */
     public function getPlayerStats(Request $request, int $playerId): Response
     {
@@ -242,14 +237,6 @@ class DokoController extends Controller
         );
     }
 
-    /**
-     * @param int $playerId
-     *
-     * @throws \LogicException
-     * @throws \Doctrine\DBAL\DBALException
-     *
-     * @return array
-     */
     private function calculateStreaks(int $playerId): array
     {
         $sql1 = 'SELECT round.creation_date AS GameDate, GR.points AS Result
@@ -257,7 +244,7 @@ class DokoController extends Controller
                  JOIN round ON round.id = GR.round_id
                  WHERE GR.player_id = :playerId';
 
-        $sql = $this->getEm()->getConnection()
+        $sql = $this->em->getConnection()
             ->prepare($sql1);
         $sql->bindValue('playerId', $playerId);
         $sql->execute();
@@ -351,20 +338,12 @@ class DokoController extends Controller
         return -2;
     }
 
-    /**
-     * @param array $playerIds
-     *
-     * @throws \LogicException
-     *
-     * @return FormInterface
-     */
     private function createPointsForm(array $playerIds): FormInterface
     {
         $players = $this->getPlayers();
 
         if (empty($playerIds)) {
-            $playersForInitialFilling = \array_slice($players, 0, 4);
-            foreach ($playersForInitialFilling as $initialPlayer) {
+            foreach (\array_slice($players, 0, 4) as $initialPlayer) {
                 $playerIds[] = $initialPlayer->getId();
             }
         }
@@ -385,7 +364,7 @@ class DokoController extends Controller
             $pointsForm->add('player' . $i . 'win', CheckboxType::class, ['required' => false]);
         }
 
-        $translator = $this->get('translator');
+        $translator = $this->translator;
 
         $pointsForm->add('saveAndNew', SubmitType::class, ['label' => $translator->trans('save_and_new', [], 'buttons')])
             ->add('save', SubmitType::class, ['label' => $translator->trans('save', [], 'buttons')]);
@@ -394,29 +373,11 @@ class DokoController extends Controller
     }
 
     /**
-     * @throws \LogicException
-     *
-     * @return EntityManager
-     */
-    private function getEm(): EntityManager
-    {
-        if ($this->em === null) {
-            $this->em = $this->getDoctrine()->getManager();
-
-            return $this->em;
-        }
-
-        return $this->em;
-    }
-
-    /**
-     * @throws \LogicException
-     *
      * @return Player[]
      */
     private function getPlayers(): array
     {
-        $builder = $this->getEm()->createQueryBuilder()
+        $builder = $this->em->createQueryBuilder()
             ->select(['player'])
             ->from('App:Player', 'player')
             ->addOrderBy('player.points', 'DESC');
@@ -424,38 +385,24 @@ class DokoController extends Controller
         return $builder->getQuery()->getResult();
     }
 
-    /**
-     * @param int $id
-     *
-     * @throws \LogicException
-     *
-     * @return Player
-     */
     private function getPlayerById(int $id): Player
     {
-        $playerRepo = $this->getEm()->getRepository('App:Player');
+        /** @var Player $player */
+        $player = $this->em->getRepository('App:Player')->find($id);
 
-        return $playerRepo->find($id);
+        return $player;
     }
 
-    /**
-     * @param Request $request
-     *
-     * @throws \LogicException
-     *
-     * @return PaginationInterface
-     */
     private function getRounds(Request $request): PaginationInterface
     {
-        $queryBuilder = $this->getEm()->createQueryBuilder()
+        $queryBuilder = $this->em->createQueryBuilder()
             ->select(['round'])
             ->from('App:Round', 'round')
             ->addOrderBy('round.creationDate', 'DESC');
 
         $query = $queryBuilder->getQuery();
 
-        $paginator = $this->get('knp_paginator');
-        $pagination = $paginator->paginate(
+        $pagination = $this->paginator->paginate(
             $query,
             $request->query->getInt('page', 1)
         );
@@ -463,17 +410,9 @@ class DokoController extends Controller
         return $pagination;
     }
 
-    /**
-     * @param Player  $player
-     * @param Request $request
-     *
-     * @throws \LogicException
-     *
-     * @return PaginationInterface
-     */
     private function getRoundsByPlayer(Player $player, Request $request): PaginationInterface
     {
-        $queryBuilder = $this->getEm()->createQueryBuilder()
+        $queryBuilder = $this->em->createQueryBuilder()
             ->select(['round'])
             ->from('App:Round', 'round')
             ->join('round.participants', 'participant')
@@ -483,8 +422,7 @@ class DokoController extends Controller
 
         $query = $queryBuilder->getQuery();
 
-        $paginator = $this->get('knp_paginator');
-        $pagination = $paginator->paginate(
+        $pagination = $this->paginator->paginate(
             $query,
             $request->query->getInt('page', 1)
         );
@@ -492,14 +430,6 @@ class DokoController extends Controller
         return $pagination;
     }
 
-    /**
-     * @param Player $player
-     *
-     * @throws \LogicException
-     * @throws \Doctrine\DBAL\DBALException
-     *
-     * @return array
-     */
     private function getPartnersOfPlayer(Player $player): array
     {
         $sql = 'SELECT partnerPlayer.name AS name, SUM(participant.points) AS points
@@ -512,15 +442,10 @@ class DokoController extends Controller
                 GROUP BY partner.player_id
                 ORDER BY points DESC;';
 
-        return $this->getEm()->getConnection()->executeQuery($sql, ['playerId' => $player->getId()])->fetchAll();
+        return $this->em->getConnection()->executeQuery($sql, ['playerId' => $player->getId()])->fetchAll();
     }
 
     /**
-     * @param int $playerId
-     *
-     * @throws \LogicException
-     * @throws \Doctrine\DBAL\DBALException
-     *
      * @return array|bool
      */
     private function getWinLossRatio(int $playerId)
@@ -530,7 +455,7 @@ class DokoController extends Controller
                 WHERE player_id = :playerId
                 GROUP BY player_id';
 
-        $sql = $this->getEm()->getConnection()->prepare($sql);
+        $sql = $this->em->getConnection()->prepare($sql);
         $sql->bindValue('playerId', $playerId);
         $sql->execute();
 

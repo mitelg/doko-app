@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * The MIT License (MIT)
  *
@@ -65,57 +65,51 @@ class Participant
      */
     private $points;
 
-    /**
-     * Participant constructor.
-     *
-     * @param Round  $round
-     * @param Player $player
-     * @param int    $points
-     */
-    public function __construct(Round $round, Player $player, $points)
+    public function __construct(Round $round, Player $player, int $points)
     {
         $this->round = $round;
         $this->player = $player;
         $this->points = $points;
     }
 
-    /**
-     * @return int
-     */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
 
-    /**
-     * @return Round
-     */
-    public function getRound()
+    public function getRound(): Round
     {
         return $this->round;
     }
 
-    /**
-     * @return Player
-     */
-    public function getPlayer()
+    public function setRound(Round $round): Participant
+    {
+        $this->round = $round;
+
+        return $this;
+    }
+
+    public function getPlayer(): Player
     {
         return $this->player;
     }
 
-    /**
-     * @return int
-     */
-    public function getPoints()
+    public function setPlayer(Player $player): Participant
+    {
+        $this->player = $player;
+
+        return $this;
+    }
+
+    public function getPoints(): int
     {
         return $this->points;
     }
 
-    /**
-     * @param int $points
-     */
-    public function setPoints($points)
+    public function setPoints(int $points): Participant
     {
         $this->points = $points;
+
+        return $this;
     }
 }

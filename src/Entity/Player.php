@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * The MIT License (MIT)
  *
@@ -54,7 +54,7 @@ class Player
      * @Assert\NotBlank()
      * @Assert\Length(min="3")
      */
-    protected $name;
+    protected $name = '';
 
     /**
      * @var int
@@ -63,61 +63,32 @@ class Player
      */
     protected $points = 0;
 
-    /**
-     * Get id
-     *
-     * @return int
-     */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
 
-    /**
-     * Set name
-     *
-     * @param string $name
-     *
-     * @return Player
-     */
-    public function setName($name)
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): Player
     {
         $this->name = $name;
 
         return $this;
     }
 
-    /**
-     * Get name
-     *
-     * @return string
-     */
-    public function getName()
+    public function getPoints(): int
     {
-        return $this->name;
+        return $this->points;
     }
 
-    /**
-     * Set points
-     *
-     * @param int $points
-     *
-     * @return Player
-     */
-    public function setPoints($points)
+    public function setPoints(int $points): Player
     {
         $this->points = $points;
 
         return $this;
-    }
-
-    /**
-     * Get points
-     *
-     * @return int
-     */
-    public function getPoints()
-    {
-        return $this->points;
     }
 }
