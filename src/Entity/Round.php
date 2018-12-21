@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * The MIT License (MIT)
  *
@@ -71,13 +71,7 @@ class Round
      */
     private $participants;
 
-    /**
-     * Round constructor.
-     *
-     * @param int  $points
-     * @param bool $isBock
-     */
-    public function __construct($points, $isBock)
+    public function __construct(int $points, bool $isBock)
     {
         $this->creationDate = new DateTime();
         $this->points = $points;
@@ -85,40 +79,49 @@ class Round
         $this->participants = new ArrayCollection();
     }
 
-    /**
-     * @return int
-     */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
 
-    /**
-     * @return DateTime
-     */
-    public function getCreationDate()
+    public function getCreationDate(): DateTime
     {
         return $this->creationDate;
     }
 
-    /**
-     * @return int
-     */
-    public function getPoints()
+    public function setCreationDate(DateTime $creationDate): Round
+    {
+        $this->creationDate = $creationDate;
+
+        return $this;
+    }
+
+    public function getPoints(): int
     {
         return $this->points;
     }
 
-    /**
-     * @return bool
-     */
-    public function isBock()
+    public function setPoints(int $points): Round
+    {
+        $this->points = $points;
+
+        return $this;
+    }
+
+    public function getBock(): bool
     {
         return $this->bock;
     }
 
+    public function setBock(bool $bock): Round
+    {
+        $this->bock = $bock;
+
+        return $this;
+    }
+
     /**
-     * @return ArrayCollection|Participant[]
+     * @return Participant[]|ArrayCollection
      */
     public function getParticipants()
     {
@@ -126,34 +129,12 @@ class Round
     }
 
     /**
-     * @param ArrayCollection $participants
+     * @param Participant[]|ArrayCollection $participants
      */
-    public function setParticipants($participants)
+    public function setParticipants(ArrayCollection $participants): Round
     {
         $this->participants = $participants;
-    }
 
-    /**
-     * @param DateTime $creationDate
-     */
-    public function setCreationDate(DateTime $creationDate)
-    {
-        $this->creationDate = $creationDate;
-    }
-
-    /**
-     * @param int $points
-     */
-    public function setPoints($points)
-    {
-        $this->points = $points;
-    }
-
-    /**
-     * @param bool $bock
-     */
-    public function setBock($bock)
-    {
-        $this->bock = $bock;
+        return $this;
     }
 }

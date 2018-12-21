@@ -13,7 +13,7 @@ Based on Symfony 4.1
 ```sh
 $ composer install
 ```
-- create `.env file with `cp .env.dist .env``
+- create `.env` file with `cp .env.dist .env`
 - make adjustments according to your setup (e.g. DB connection)
 ```sh
 $ php bin/console doctrine:database:create
