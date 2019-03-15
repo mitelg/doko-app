@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * The MIT License (MIT)
  *
@@ -22,12 +22,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+require __DIR__ . '/../vendor/autoload.php';
+
 use App\Kernel;
 use Symfony\Component\Debug\Debug;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\HttpFoundation\Request;
-
-require __DIR__ . '/../vendor/autoload.php';
 
 // The check is to ensure we don't use .env in production
 if (!isset($_SERVER['APP_ENV'])) {

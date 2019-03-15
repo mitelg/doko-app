@@ -1,6 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 
-$finder = PhpCsFixer\Finder::create()
+use PhpCsFixer\Config;
+use PhpCsFixer\Finder;
+use PhpCsFixerCustomFixers\Fixer;
+use PhpCsFixerCustomFixers\Fixers;
+
+$finder = Finder::create()
     ->exclude(__DIR__ . '/var')
     ->in(__DIR__);
 
@@ -28,12 +33,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 EOF;
 
-return PhpCsFixer\Config::create()
+return Config::create()
+    ->setRiskyAllowed(true)
     ->setUsingCache(false)
+    ->registerCustomFixers(new Fixers())
     ->setRules([
         '@PSR2' => true,
         '@Symfony' => true,
-        'header_comment' => ['header' => $header, 'separate' => 'bottom', 'commentType' => 'PHPDoc'],
         'no_useless_else' => true,
         'no_useless_return' => true,
         'ordered_class_elements' => true,
@@ -43,6 +49,29 @@ return PhpCsFixer\Config::create()
         'blank_line_after_opening_tag' => false,
         'concat_space' => ['spacing' => 'one'],
         'array_syntax' => ['syntax' => 'short'],
+        // Removes @param and @return tags that don't provide any useful information.
+        'no_superfluous_phpdoc_tags' => true,
+        // add declare strict type to every file
+        'declare_strict_types' => true,
+        // use native phpunit methods
+        'php_unit_construct' => true,
+        // Enforce camel case for PHPUnit test methods
+        'php_unit_method_casing' => ['case' => 'camel_case'],
         'yoda_style' => ['equal' => false, 'identical' => false, 'less_and_greater' => false],
+        'php_unit_test_case_static_method_calls' => true,
+        // comparisons should always be strict
+        'strict_comparison' => true,
+        // functions should be used with $strict param set to true
+        'strict_param' => true,
+        'array_indentation' => true,
+        'compact_nullable_typehint' => true,
+        Fixer\SingleSpaceAfterStatementFixer::name() => true,
+        Fixer\NoUselessCommentFixer::name() => true,
+        Fixer\PhpdocNoSuperfluousParamFixer::name() => true,
+        Fixer\NoImportFromGlobalNamespaceFixer::name() => true,
+        Fixer\OperatorLinebreakFixer::name() => true,
+        Fixer\PhpdocNoIncorrectVarAnnotationFixer::name() => true,
+        Fixer\NoUnneededConcatenationFixer::name() => true,
+        Fixer\NullableParamStyleFixer::name() => true,
     ])
     ->setFinder($finder);

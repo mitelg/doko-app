@@ -25,13 +25,10 @@
 
 namespace App\Entity;
 
-use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Class Round
- *
  * @ORM\Entity()
  * @ORM\Table(name="round")
  */
@@ -47,7 +44,7 @@ class Round
     private $id;
 
     /**
-     * @var DateTime
+     * @var \DateTime
      * @ORM\Column(type="datetime")
      */
     private $creationDate;
@@ -73,7 +70,7 @@ class Round
 
     public function __construct(int $points, bool $isBock)
     {
-        $this->creationDate = new DateTime();
+        $this->creationDate = new \DateTime();
         $this->points = $points;
         $this->bock = $isBock;
         $this->participants = new ArrayCollection();
@@ -84,12 +81,12 @@ class Round
         return $this->id;
     }
 
-    public function getCreationDate(): DateTime
+    public function getCreationDate(): \DateTime
     {
         return $this->creationDate;
     }
 
-    public function setCreationDate(DateTime $creationDate): Round
+    public function setCreationDate(\DateTime $creationDate): Round
     {
         $this->creationDate = $creationDate;
 

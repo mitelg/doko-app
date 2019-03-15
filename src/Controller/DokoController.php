@@ -279,8 +279,6 @@ class DokoController extends AbstractController
      * checks for winners and losers
      * also checks if given data is valid
      *
-     * @param array $formData
-     *
      * @return array|int
      */
     private function calculateGameResult(array $formData)

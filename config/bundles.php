@@ -1,5 +1,5 @@
-<?php
-/**
+<?php declare(strict_types=1);
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) Michael Telgmann
