@@ -44,6 +44,7 @@ return Config::create()
         'no_useless_return' => true,
         'ordered_class_elements' => true,
         'ordered_imports' => true,
+        'method_argument_space' => ['on_multiline' => 'ensure_fully_multiline'],
         'phpdoc_order' => true,
         'phpdoc_summary' => false,
         'blank_line_after_opening_tag' => false,
@@ -51,6 +52,8 @@ return Config::create()
         'array_syntax' => ['syntax' => 'short'],
         // Removes @param and @return tags that don't provide any useful information.
         'no_superfluous_phpdoc_tags' => true,
+        'void_return' => true,
+        'class_attributes_separation' => ['elements' => ['method', 'property']],
         // add declare strict type to every file
         'declare_strict_types' => true,
         // use native phpunit methods
@@ -61,10 +64,16 @@ return Config::create()
         'php_unit_test_case_static_method_calls' => true,
         // comparisons should always be strict
         'strict_comparison' => true,
+        'php_unit_dedicate_assert' => ['target' => 'newest'],
+        'php_unit_dedicate_assert_internal_type' => true,
+        'php_unit_mock' => true,
+        'php_unit_mock_short_will_return' => true,
         // functions should be used with $strict param set to true
         'strict_param' => true,
         'array_indentation' => true,
         'compact_nullable_typehint' => true,
+        'modernize_types_casting' => true,
+        'mb_str_functions' => true,
         Fixer\SingleSpaceAfterStatementFixer::name() => true,
         Fixer\NoUselessCommentFixer::name() => true,
         Fixer\PhpdocNoSuperfluousParamFixer::name() => true,
@@ -73,5 +82,8 @@ return Config::create()
         Fixer\PhpdocNoIncorrectVarAnnotationFixer::name() => true,
         Fixer\NoUnneededConcatenationFixer::name() => true,
         Fixer\NullableParamStyleFixer::name() => true,
+        'general_phpdoc_annotation_remove' => [
+            'annotations' => ['copyright', 'category'],
+        ],
     ])
     ->setFinder($finder);
