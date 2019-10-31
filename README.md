@@ -3,7 +3,7 @@ doko-app
 
 This is a small web app to save points for players of the german card game "Doppelkopf"
 
-Based on Symfony 4.1
+Based on Symfony 4.3
 
 # Installation
 
