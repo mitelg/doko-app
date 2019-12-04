@@ -76,7 +76,6 @@ return Config::create()
         'mb_str_functions' => true,
         Fixer\SingleSpaceAfterStatementFixer::name() => true,
         Fixer\NoUselessCommentFixer::name() => true,
-        Fixer\PhpdocNoSuperfluousParamFixer::name() => true,
         Fixer\NoImportFromGlobalNamespaceFixer::name() => true,
         Fixer\OperatorLinebreakFixer::name() => true,
         Fixer\PhpdocNoIncorrectVarAnnotationFixer::name() => true,
@@ -85,5 +84,6 @@ return Config::create()
         'general_phpdoc_annotation_remove' => [
             'annotations' => ['copyright', 'category'],
         ],
+        'single_line_throw' => false,
     ])
     ->setFinder($finder);
