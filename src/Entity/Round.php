@@ -26,6 +26,7 @@
 namespace App\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -62,7 +63,7 @@ class Round
     private $bock;
 
     /**
-     * @var ArrayCollection|Participant[]
+     * @var Participant[]|Collection<array-key, Participant>
      *
      * @ORM\OneToMany(targetEntity="Participant", mappedBy="round", cascade={"persist", "remove"})
      */
@@ -118,7 +119,7 @@ class Round
     }
 
     /**
-     * @return Participant[]|ArrayCollection
+     * @return Participant[]|Collection<array-key, Participant>
      */
     public function getParticipants()
     {
@@ -126,9 +127,9 @@ class Round
     }
 
     /**
-     * @param Participant[]|ArrayCollection $participants
+     * @param Participant[]|Collection<array-key, Participant> $participants
      */
-    public function setParticipants(ArrayCollection $participants): Round
+    public function setParticipants($participants): Round
     {
         $this->participants = $participants;
 

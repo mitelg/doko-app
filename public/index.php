@@ -25,8 +25,8 @@
 require __DIR__ . '/../vendor/autoload.php';
 
 use App\Kernel;
-use Symfony\Component\Debug\Debug;
 use Symfony\Component\Dotenv\Dotenv;
+use Symfony\Component\ErrorHandler\Debug;
 use Symfony\Component\HttpFoundation\Request;
 
 // The check is to ensure we don't use .env in production

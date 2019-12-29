@@ -6,8 +6,9 @@ use PhpCsFixerCustomFixers\Fixer;
 use PhpCsFixerCustomFixers\Fixers;
 
 $finder = Finder::create()
-    ->exclude(__DIR__ . '/var')
-    ->in(__DIR__);
+    ->in(__DIR__ . '/src')
+    ->in(__DIR__ . '/config')
+    ->in(__DIR__ . '/public');
 
 $header = <<<EOF
 The MIT License (MIT)
