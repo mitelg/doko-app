@@ -1,11 +1,11 @@
-doko-app
+Doko-App
 ========
 
 This is a small web app to save points for players of the german card game "Doppelkopf"
 
-Based on Symfony 4.3
+Based on Symfony 5
 
-# Installation
+## Installation
 
 - git clone this repo where ever you like
 - cd into directory `doko-app`
@@ -20,15 +20,10 @@ $ php bin/console doctrine:database:create
 $ php bin/console doctrine:schema:create
 ```
 
-# Development
-Use the symfony server component to run the application
+## Development
+Use the PHP server to run the application
 ```sh
-$ php bin/console server:run
-$ php bin/console server:stop
+$ php -S localhost:8000 -t public
 ```
 
-or call `<your-domain>/doko-app/public/`
-
-# TODO
-
-- extract logic from controller into a service
+or call `<your-webroot>/doko-app/public/`
