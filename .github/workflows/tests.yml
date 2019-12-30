@@ -17,7 +17,7 @@ jobs:
                 run: composer install --prefer-dist --no-progress --no-suggest
 
             -   name: Check code style with PHP-CS-Fixer
-                run: vendor/bin/php-cs-fixer fix --config=.php_cs.dist --dry-run
+                run: vendor/bin/php-cs-fixer fix --dry-run --format=checkstyle
 
             -   name: Static code analysis with PHPStan
                 run: vendor/bin/phpstan analyse src --level 8
