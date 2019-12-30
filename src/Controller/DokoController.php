@@ -16,6 +16,9 @@ use Knp\Component\Pager\PaginatorInterface;
 use Mitelg\DokoApp\Entity\Participant;
 use Mitelg\DokoApp\Entity\Player;
 use Mitelg\DokoApp\Entity\Round;
+use Mitelg\DokoApp\Exception\FourWinnersException;
+use Mitelg\DokoApp\Exception\NoWinnerSelectedException;
+use Mitelg\DokoApp\Exception\PlayerSelectedTwiceException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -87,24 +90,19 @@ class DokoController extends AbstractController
 
         if ($pointsForm->isSubmitted() && $pointsForm->isValid()) {
             $pointsOfGame = $pointsForm->getData()['points'];
-            if ($pointsOfGame > 0) {
-                $data = $this->calculateGameResult($pointsForm->getData());
-            } else {
-                $data = -4;
+            if ($pointsOfGame < 1) {
+                $pointsForm->addError(new FormError('The value of points must be at least 1'));
             }
 
-            // if given data is not valid, throw several form errors and redirect to action again
-            if (!\is_array($data)) {
-                if ($data === -1) {
-                    $pointsForm->addError(new FormError('There must be at least one winner'));
-                } elseif ($data === -2) {
-                    $pointsForm->addError(new FormError('Four winners are one too many'));
-                } elseif ($data === -3) {
-                    $pointsForm->addError(new FormError('One player is selected twice'));
-                } elseif ($data === -4) {
-                    $pointsForm->addError(new FormError('The value of points must be at least 1'));
-                }
+            $gameResult = [];
+            try {
+                $gameResult = $this->calculateGameResult($pointsForm->getData());
+            } catch (FourWinnersException | NoWinnerSelectedException | PlayerSelectedTwiceException $e) {
+                $pointsForm->addError(new FormError($e->getMessage()));
+            }
 
+            // if given data is not valid redirect to action again and show form errors
+            if (!$pointsForm->isValid()) {
                 return $this->render(
                     'index/enter_points.html.twig',
                     ['pointsForm' => $pointsForm->createView()]
@@ -117,7 +115,7 @@ class DokoController extends AbstractController
             // if data is okay, save points to database
             /** @var Collection<array-key, Participant> $participants */
             $participants = new ArrayCollection();
-            foreach ($data as $item) {
+            foreach ($gameResult as $item) {
                 $player = $this->getPlayerById($item['playerId']);
                 $playerIds[] = $item['playerId'];
                 $newPoints = $player->getPoints() + $item['points'];
@@ -238,14 +236,18 @@ class DokoController extends AbstractController
      *
      * @param array<string, int|bool> $formData
      *
-     * @return array<array-key, array>|int
+     * @throws FourWinnersException
+     * @throws NoWinnerSelectedException
+     * @throws PlayerSelectedTwiceException
+     *
+     * @return array<array-key, array{playerId:int, points:int}>
      */
-    private function calculateGameResult(array $formData)
+    private function calculateGameResult(array $formData): array
     {
         $playerIds = [];
         $winners = [];
         $losers = [];
-        $points = $formData['points'];
+        $points = (int) $formData['points'];
 
         // double the points if Bock round
         if ($formData['bockRound']) {
@@ -256,21 +258,19 @@ class DokoController extends AbstractController
         for ($i = 1; $i <= 4; ++$i) {
             $playerId = (int) $formData['player' . $i];
             if (\in_array($playerId, $playerIds, true)) {
-                // if one player is selected twice, throw error
-                return -3;
+                throw new PlayerSelectedTwiceException('One player is selected twice');
             }
             $playerIds[] = $playerId;
 
             if ($formData['player' . $i . 'win']) {
                 $winners[] = ['playerId' => $playerId, 'points' => $points];
             } else {
-                $losers[] = ['playerId' => $formData['player' . $i], 'points' => $points * -1];
+                $losers[] = ['playerId' => $playerId, 'points' => $points * -1];
             }
         }
 
         if (\count($winners) === 0) {
-            // there is no winner selected
-            return -1;
+            throw new NoWinnerSelectedException('There must be at least one winner');
         }
 
         if (\count($winners) === 1) {
@@ -291,8 +291,7 @@ class DokoController extends AbstractController
             return array_merge($winners, $losers);
         }
 
-        // all four players can not be winners
-        return -2;
+        throw new FourWinnersException('Four winners are one too many');
     }
 
     /**
@@ -322,14 +321,19 @@ class DokoController extends AbstractController
 
         // create four players
         for ($i = 1; $i <= 4; ++$i) {
-            $pointsForm->add('player' . $i, ChoiceType::class, ['choices' => $playersArray, 'data' => $playerIds[$i - 1]]);
+            $pointsForm->add('player' . $i, ChoiceType::class, [
+                'choices' => $playersArray,
+                'data' => $playerIds[$i - 1],
+            ]);
             $pointsForm->add('player' . $i . 'win', CheckboxType::class, ['required' => false]);
         }
 
         $translator = $this->translator;
 
-        $pointsForm->add('saveAndNew', SubmitType::class, ['label' => $translator->trans('save_and_new', [], 'buttons')])
-            ->add('save', SubmitType::class, ['label' => $translator->trans('save', [], 'buttons')]);
+        $pointsForm->add('saveAndNew', SubmitType::class, [
+            'label' => $translator->trans('save_and_new', [], 'buttons'),
+        ]);
+        $pointsForm->add('save', SubmitType::class, ['label' => $translator->trans('save', [], 'buttons')]);
 
         return $pointsForm->getForm();
     }
