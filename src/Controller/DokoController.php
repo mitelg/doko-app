@@ -21,7 +21,6 @@ use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilder;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -73,37 +72,6 @@ class DokoController extends AbstractController
     public function indexAction(): Response
     {
         return $this->render('index/index.html.twig');
-    }
-
-    /**
-     * creates a new player
-     *
-     * @Route("/createPlayer")
-     */
-    public function createPlayerAction(Request $request): Response
-    {
-        $player = new Player();
-        $buttonTranslation = $this->translator->trans('create', [], 'create_player');
-
-        /* @var FormInterface $playerForm */
-        $playerForm = $this->createFormBuilder($player)
-            ->add('name', TextType::class)
-            ->add('save', SubmitType::class, ['label' => $buttonTranslation])
-            ->getForm();
-
-        $playerForm->handleRequest($request);
-
-        if ($playerForm->isSubmitted() && $playerForm->isValid()) {
-            $this->em->persist($player);
-            $this->em->flush();
-
-            return $this->redirectToRoute('mitelg_dokoapp_doko_index');
-        }
-
-        return $this->render(
-            'index/create_player.html.twig',
-            ['playerForm' => $playerForm->createView()]
-        );
     }
 
     /**
