@@ -1,23 +1,47 @@
-name: Tests
+name: Code Check
 
 on: [push]
 
 jobs:
-  build:
+    build:
 
-    runs-on: ubuntu-latest
+        runs-on: ubuntu-latest
 
-    steps:
-    - uses: actions/checkout@v1
+        steps:
+            -   uses: actions/checkout@v1
 
-    - name: Validate composer.json and composer.lock
-      run: composer validate
+            -   name: Validate composer.json and composer.lock
+                run: composer validate
 
-    - name: Install dependencies
-      run: composer install --prefer-dist --no-progress --no-suggest
-    
-    - name: PHPStan
-      run: vendor/bin/phpstan analyse src --level 8
-    
-#    - name: Psalm
-#      run: vendor/bin/psalm --show-info=false
+            -   name: Install dependencies
+                run: composer install --prefer-dist --no-progress --no-suggest
+
+            -   name: Check code style with PHP-CS-Fixer
+                run: vendor/bin/php-cs-fixer fix --config=.php_cs.dist --dry-run
+
+            -   name: Static code analysis with PHPStan
+                run: vendor/bin/phpstan analyse src --level 8
+
+#            -   name: Static code analysis with Psalm
+#                run: vendor/bin/psalm --show-info=false
+
+            -   name: Check for insecure libs
+                run: vendor/bin/security-checker security:check
+
+            -   name: Lint Twig templates
+                run: bin/console lint:twig templates
+
+            -   name: Lint Yaml files
+                run: bin/console lint:yaml config
+
+            -   name: Lint container
+                run: bin/console lint:container
+
+            -   name: Lint translations
+                run: bin/console lint:xliff translations
+
+            -   name: Lint PHP files
+                run: vendor/bin/parallel-lint src
+
+            -   name: Check for var_dump()s
+                run: vendor/bin/var-dump-check src --doctrine --symfony
