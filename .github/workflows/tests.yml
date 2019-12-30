@@ -1,6 +1,6 @@
 name: Tests
 
-on: [pull_request, push]
+on: [push]
 
 jobs:
   build:
@@ -18,3 +18,6 @@ jobs:
     
     - name: PHPStan
       run: vendor/bin/phpstan analyse src --level 8
+    
+#    - name: Psalm
+#      run: vendor/bin/psalm --show-info=false
