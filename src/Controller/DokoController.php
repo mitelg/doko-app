@@ -1,38 +1,21 @@
 <?php declare(strict_types=1);
-/**
- * The MIT License (MIT)
- *
+/*
  * Copyright (c) Michael Telgmann
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
-namespace App\Controller;
+namespace Mitelg\DokoApp\Controller;
 
-use App\Entity\Participant;
-use App\Entity\Player;
-use App\Entity\Round;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\Pagination\PaginationInterface;
 use Knp\Component\Pager\PaginatorInterface;
+use Mitelg\DokoApp\Entity\Participant;
+use Mitelg\DokoApp\Entity\Player;
+use Mitelg\DokoApp\Entity\Round;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -114,7 +97,7 @@ class DokoController extends AbstractController
             $this->em->persist($player);
             $this->em->flush();
 
-            return $this->redirectToRoute('app_doko_index');
+            return $this->redirectToRoute('mitelg_dokoapp_doko_index');
         }
 
         return $this->render(
@@ -182,7 +165,7 @@ class DokoController extends AbstractController
 
             /** @var SubmitButton $saveButton */
             $saveButton = $pointsForm->get('save');
-            $nextAction = $saveButton->isClicked() ? 'app_doko_showscoreboard' : 'app_doko_enterpoints';
+            $nextAction = $saveButton->isClicked() ? 'mitelg_dokoapp_doko_showscoreboard' : 'mitelg_dokoapp_doko_enterpoints';
 
             return $this->redirectToRoute($nextAction);
         }
@@ -390,7 +373,7 @@ class DokoController extends AbstractController
     {
         $builder = $this->em->createQueryBuilder()
             ->select(['player'])
-            ->from('App:Player', 'player')
+            ->from(Player::class, 'player')
             ->addOrderBy('player.points', 'DESC');
 
         return $builder->getQuery()->getResult();
@@ -399,7 +382,7 @@ class DokoController extends AbstractController
     private function getPlayerById(int $id): Player
     {
         /** @var Player $player */
-        $player = $this->em->getRepository('App:Player')->find($id);
+        $player = $this->em->getRepository(Player::class)->find($id);
 
         return $player;
     }
@@ -411,7 +394,7 @@ class DokoController extends AbstractController
     {
         $queryBuilder = $this->em->createQueryBuilder()
             ->select(['round'])
-            ->from('App:Round', 'round')
+            ->from(Round::class, 'round')
             ->addOrderBy('round.creationDate', 'DESC');
 
         $query = $queryBuilder->getQuery();
@@ -429,7 +412,7 @@ class DokoController extends AbstractController
     {
         $queryBuilder = $this->em->createQueryBuilder()
             ->select(['round'])
-            ->from('App:Round', 'round')
+            ->from(Round::class, 'round')
             ->join('round.participants', 'participant')
             ->andWhere('participant.player = :player')
             ->setParameter('player', $player)

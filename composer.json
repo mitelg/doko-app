@@ -1,5 +1,5 @@
 {
-    "name": "mt/doko.app",
+    "name": "mitelg/doko.app",
     "license": "MIT",
     "type": "project",
     "description": "small web app to save points for players of the german card game 'Doppelkopf'",
@@ -14,7 +14,6 @@
         "knplabs/knp-paginator-bundle": "5.0.0",
         "knplabs/knp-components": "2.3.1",
         "sensio/framework-extra-bundle": "5.5.3",
-        "symfony/apache-pack": "1.0.1",
         "symfony/asset": "5.0.2",
         "symfony/config": "5.0.2",
         "symfony/console": "5.0.2",
@@ -53,7 +52,7 @@
     },
     "autoload": {
         "psr-4": {
-            "App\\": "src/"
+            "Mitelg\\DokoApp\\": "src/"
         }
     },
     "replace": {
