@@ -13,7 +13,6 @@ use PhpCsFixerCustomFixers\Fixers;
 
 $finder = Finder::create()
     ->in(__DIR__ . '/src')
-    ->in(__DIR__ . '/config')
     ->in(__DIR__ . '/public');
 
 $header = <<<EOF
