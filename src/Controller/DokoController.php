@@ -93,7 +93,7 @@ class DokoController extends AbstractController
 
         $playerForm->handleRequest($request);
 
-        if ($playerForm->isSubmitted()) {
+        if ($playerForm->isSubmitted() && $playerForm->isValid()) {
             $this->em->persist($player);
             $this->em->flush();
 
@@ -117,7 +117,7 @@ class DokoController extends AbstractController
 
         $pointsForm->handleRequest($request);
 
-        if ($pointsForm->isSubmitted()) {
+        if ($pointsForm->isSubmitted() && $pointsForm->isValid()) {
             $pointsOfGame = $pointsForm->getData()['points'];
             if ($pointsOfGame > 0) {
                 $data = $this->calculateGameResult($pointsForm->getData());
