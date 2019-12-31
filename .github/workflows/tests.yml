@@ -22,8 +22,8 @@ jobs:
             -   name: Static code analysis with PHPStan
                 run: vendor/bin/phpstan analyse src --level 8
 
-#            -   name: Static code analysis with Psalm
-#                run: vendor/bin/psalm --show-info=false
+            -   name: Static code analysis with Psalm
+                run: vendor/bin/psalm --show-info=false
 
             -   name: Check for insecure libs
                 run: vendor/bin/security-checker security:check

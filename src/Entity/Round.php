@@ -57,7 +57,7 @@ class Round
         $this->creationDate = new \DateTime();
         $this->points = $points;
         $this->bock = $isBock;
-        $this->participants = new ArrayCollection();
+        $this->participants = new ArrayCollection([]);
     }
 
     public function getId(): int

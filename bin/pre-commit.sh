@@ -28,8 +28,19 @@ fi
 
 if [ "$FILES" != "" ]
 then
-    echo "Static code analysis..."
-    vendor/bin/phpstan analyse src --level 7 --no-progress
+    echo "Static code analysis with PHPStan..."
+    vendor/bin/phpstan analyse src --level 8 --no-progress
+	if [ $? != 0 ]
+	then
+		echo "Static code analysis failed. Fix the error before commit."
+		exit 1
+	fi
+fi
+
+if [ "$FILES" != "" ]
+then
+    echo "Static code analysis with Psalm..."
+    vendor/bin/psalm --show-info=false
 	if [ $? != 0 ]
 	then
 		echo "Static code analysis failed. Fix the error before commit."
@@ -63,6 +74,28 @@ if [ "$FILES" != "" ]
 then
     echo "Linting Yaml files..."
     bin/console lint:yaml config
+	if [ $? != 0 ]
+	then
+		echo "Yaml linting failed. Fix the error before commit."
+		exit 1
+	fi
+fi
+
+if [ "$FILES" != "" ]
+then
+    echo "Linting container..."
+    bin/console lint:container
+	if [ $? != 0 ]
+	then
+		echo "Yaml linting failed. Fix the error before commit."
+		exit 1
+	fi
+fi
+
+if [ "$FILES" != "" ]
+then
+    echo "Linting translation files..."
+    bin/console lint:xliff translations
 	if [ $? != 0 ]
 	then
 		echo "Yaml linting failed. Fix the error before commit."

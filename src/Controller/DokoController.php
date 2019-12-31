@@ -10,6 +10,8 @@ namespace Mitelg\DokoApp\Controller;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\FetchMode;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\Pagination\PaginationInterface;
 use Knp\Component\Pager\PaginatorInterface;
@@ -40,7 +42,12 @@ class DokoController extends AbstractController
     /**
      * @var EntityManagerInterface
      */
-    private $em;
+    private $entityManager;
+
+    /**
+     * @var Connection
+     */
+    private $connection;
 
     /**
      * @var TranslatorInterface
@@ -58,12 +65,14 @@ class DokoController extends AbstractController
     private $paginator;
 
     public function __construct(
-        EntityManagerInterface $em,
+        EntityManagerInterface $entityManager,
+        Connection $connection,
         TranslatorInterface $translator,
         SessionInterface $session,
         PaginatorInterface $paginator
     ) {
-        $this->em = $em;
+        $this->entityManager = $entityManager;
+        $this->connection = $connection;
         $this->translator = $translator;
         $this->session = $session;
         $this->paginator = $paginator;
@@ -78,25 +87,40 @@ class DokoController extends AbstractController
     }
 
     /**
-     * enter a new game with its points
-     *
      * @Route("/enterPoints")
      */
     public function enterPointsAction(Request $request): Response
     {
-        $pointsForm = $this->createPointsForm($this->session->get('playerIds', []));
+        /** @var array<array-key, int> $playerIds */
+        $playerIds = (array) $this->session->get('playerIds', []);
+        $pointsForm = $this->createPointsForm($playerIds);
 
         $pointsForm->handleRequest($request);
 
         if ($pointsForm->isSubmitted() && $pointsForm->isValid()) {
-            $pointsOfGame = $pointsForm->getData()['points'];
+            /** @var array<string, bool|int> $pointsFormData */
+            $pointsFormData = (array) $pointsForm->getData();
+            $pointsOfGame = 0;
+            if (isset($pointsFormData['points'])) {
+                $pointsOfGame = (int) $pointsFormData['points'];
+            }
             if ($pointsOfGame < 1) {
                 $pointsForm->addError(new FormError('The value of points must be at least 1'));
+
+                return $this->render(
+                    'index/enter_points.html.twig',
+                    ['pointsForm' => $pointsForm->createView()]
+                );
+            }
+
+            $isBockRound = false;
+            if (isset($pointsFormData['bockRound'])) {
+                $isBockRound = (bool) $pointsFormData['bockRound'];
             }
 
             $gameResult = [];
             try {
-                $gameResult = $this->calculateGameResult($pointsForm->getData());
+                $gameResult = $this->calculateGameResult($pointsFormData, $pointsOfGame, $isBockRound);
             } catch (FourWinnersException | NoWinnerSelectedException | PlayerSelectedTwiceException $e) {
                 $pointsForm->addError(new FormError($e->getMessage()));
             }
@@ -109,7 +133,7 @@ class DokoController extends AbstractController
                 );
             }
 
-            $round = new Round($pointsOfGame, $pointsForm->get('bockRound')->getData());
+            $round = new Round($pointsOfGame, $isBockRound);
 
             $playerIds = [];
             // if data is okay, save points to database
@@ -124,8 +148,8 @@ class DokoController extends AbstractController
                 $participants->add($participant);
             }
             $round->setParticipants($participants);
-            $this->em->persist($round);
-            $this->em->flush();
+            $this->entityManager->persist($round);
+            $this->entityManager->flush();
 
             $this->session->set('playerIds', $playerIds);
 
@@ -143,8 +167,6 @@ class DokoController extends AbstractController
     }
 
     /**
-     * Show scoreboard
-     *
      * @Route("/showScoreboard")
      */
     public function showScoreboardAction(Request $request): Response
@@ -160,8 +182,6 @@ class DokoController extends AbstractController
     }
 
     /**
-     * Show player stats
-     *
      * @Route("/playerstats/{playerId}")
      */
     public function getPlayerStats(Request $request, int $playerId): Response
@@ -182,51 +202,54 @@ class DokoController extends AbstractController
                 'player' => $player,
                 'rounds' => $rounds,
                 'partners' => $partners,
-                'longestWinStreak' => $streaks['win_streak'],
-                'longestLosingStreak' => $streaks['loss_streak'],
+                'longestWinStreak' => $streaks['winStreak'],
+                'longestLosingStreak' => $streaks['lossStreak'],
                 'winLossRatio' => $winLossRatio,
             ]
         );
     }
 
     /**
-     * @return array<string, int>
+     * @return array{winStreak:int, lossStreak:int}
      */
     private function calculateStreaks(int $playerId): array
     {
-        $sql1 = 'SELECT round.creation_date AS GameDate, GR.points AS Result
-                 FROM participant GR
-                 JOIN round ON round.id = GR.round_id
-                 WHERE GR.player_id = :playerId';
+        $sql = 'SELECT participant.points
+                 FROM participant
+                 JOIN round ON round.id = participant.round_id
+                 WHERE participant.player_id = :playerId';
 
-        $sql = $this->em->getConnection()
-            ->prepare($sql1);
-        $sql->bindValue('playerId', $playerId);
-        $sql->execute();
-        $data = $sql->fetchAll();
+        $query = $this->connection->prepare($sql);
+        $query->bindValue('playerId', $playerId);
+        $query->execute();
+        /** @var array<array-key, string> $points */
+        $points = $query->fetchAll(FetchMode::COLUMN);
 
         $maxWinStreak = 0;
-        $_win_streak = 0;
+        $winStreak = 0;
         $maxLossStreak = 0;
-        $_loss_streak = 0;
+        $lossStreak = 0;
 
-        foreach ($data as $value) {
-            if ($value['Result'] >= 0) {
-                ++$_win_streak;
-                if ($_win_streak > $maxWinStreak) {
-                    $maxWinStreak = $_win_streak;
+        foreach ($points as $point) {
+            $point = (int) $point;
+
+            if ($point >= 0) {
+                ++$winStreak;
+                if ($winStreak > $maxWinStreak) {
+                    $maxWinStreak = $winStreak;
                 }
-                $_loss_streak = 0;
-            } elseif ($value['Result'] < 0) {
-                ++$_loss_streak;
-                if ($_loss_streak > $maxLossStreak) {
-                    $maxLossStreak = $_loss_streak;
-                }
-                $_win_streak = 0;
+                $lossStreak = 0;
+                continue;
             }
+
+            ++$lossStreak;
+            if ($lossStreak > $maxLossStreak) {
+                $maxLossStreak = $lossStreak;
+            }
+            $winStreak = 0;
         }
 
-        return ['win_streak' => $maxWinStreak, 'loss_streak' => $maxLossStreak];
+        return ['winStreak' => $maxWinStreak, 'lossStreak' => $maxLossStreak];
     }
 
     /**
@@ -242,15 +265,14 @@ class DokoController extends AbstractController
      *
      * @return array<array-key, array{playerId:int, points:int}>
      */
-    private function calculateGameResult(array $formData): array
+    private function calculateGameResult(array $formData, int $points, bool $isBockRound): array
     {
         $playerIds = [];
         $winners = [];
         $losers = [];
-        $points = (int) $formData['points'];
 
         // double the points if Bock round
-        if ($formData['bockRound']) {
+        if ($isBockRound) {
             $points *= 2;
         }
 
@@ -286,7 +308,9 @@ class DokoController extends AbstractController
 
         if (\count($winners) === 3) {
             // there is only one loser, so he/she loses more points
-            $losers[0]['points'] *= 3;
+            if (isset($losers[0]['points'])) {
+                $losers[0]['points'] *= 3;
+            }
 
             return array_merge($winners, $losers);
         }
@@ -343,18 +367,21 @@ class DokoController extends AbstractController
      */
     private function getPlayers(): array
     {
-        $builder = $this->em->createQueryBuilder()
+        $builder = $this->entityManager->createQueryBuilder()
             ->select(['player'])
             ->from(Player::class, 'player')
             ->addOrderBy('player.points', 'DESC');
 
-        return $builder->getQuery()->getResult();
+        /** @var Player[] $result */
+        $result = $builder->getQuery()->getResult();
+
+        return $result;
     }
 
     private function getPlayerById(int $id): Player
     {
         /** @var Player $player */
-        $player = $this->em->getRepository(Player::class)->find($id);
+        $player = $this->entityManager->getRepository(Player::class)->find($id);
 
         return $player;
     }
@@ -364,7 +391,7 @@ class DokoController extends AbstractController
      */
     private function getRounds(Request $request): PaginationInterface
     {
-        $queryBuilder = $this->em->createQueryBuilder()
+        $queryBuilder = $this->entityManager->createQueryBuilder()
             ->select(['round'])
             ->from(Round::class, 'round')
             ->addOrderBy('round.creationDate', 'DESC');
@@ -382,7 +409,7 @@ class DokoController extends AbstractController
      */
     private function getRoundsByPlayer(Player $player, Request $request): PaginationInterface
     {
-        $queryBuilder = $this->em->createQueryBuilder()
+        $queryBuilder = $this->entityManager->createQueryBuilder()
             ->select(['round'])
             ->from(Round::class, 'round')
             ->join('round.participants', 'participant')
@@ -413,11 +440,11 @@ class DokoController extends AbstractController
                 GROUP BY partner.player_id
                 ORDER BY points DESC;';
 
-        return $this->em->getConnection()->executeQuery($sql, ['playerId' => $player->getId()])->fetchAll();
+        return $this->connection->executeQuery($sql, ['playerId' => $player->getId()])->fetchAll();
     }
 
     /**
-     * @return array<string, int>
+     * @return array{wins:int, loss:int}
      */
     private function getWinLossRatio(int $playerId): array
     {
@@ -426,12 +453,14 @@ class DokoController extends AbstractController
                 WHERE player_id = :playerId
                 GROUP BY player_id';
 
-        $sql = $this->em->getConnection()->prepare($sql);
+        $sql = $this->connection->prepare($sql);
         $sql->bindValue('playerId', $playerId);
         $sql->execute();
+        /** @var array{wins:string, loss:string} $result */
+        $result = $sql->fetch();
 
         return array_map(static function (string $value) {
             return (int) $value;
-        }, $sql->fetch());
+        }, $result);
     }
 }
