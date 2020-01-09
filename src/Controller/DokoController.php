@@ -456,8 +456,12 @@ class DokoController extends AbstractController
         $sql = $this->connection->prepare($sql);
         $sql->bindValue('playerId', $playerId);
         $sql->execute();
-        /** @var array{wins:string, loss:string} $result */
+        /** @var array{wins:string, loss:string}|false $result */
         $result = $sql->fetch();
+
+        if ($result === false) {
+            return ['wins' => 0, 'loss' => 0];
+        }
 
         return array_map(static function (string $value) {
             return (int) $value;
