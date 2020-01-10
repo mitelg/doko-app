@@ -42,7 +42,7 @@
         "symfony/error-handler": "5.0.2",
         "symfony/stopwatch": "5.0.2",
         "symfony/web-profiler-bundle": "5.0.2",
-        "vimeo/psalm": "3.8.1"
+        "vimeo/psalm": "3.8.2"
     },
     "config": {
         "preferred-install": {
