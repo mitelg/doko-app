@@ -16,8 +16,8 @@ jobs:
             -   name: Install dependencies
                 run: composer install --prefer-dist --no-progress --no-suggest
 
-            -   name: Check code style with PHP-CS-Fixer
-                run: vendor/bin/php-cs-fixer fix --dry-run --format=checkstyle
+            -   name: Check code style
+                run: vendor/bin/ecs check src public
 
             -   name: Static code analysis with PHPStan
                 run: vendor/bin/phpstan analyse src --level 8

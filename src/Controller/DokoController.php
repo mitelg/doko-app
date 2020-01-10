@@ -1,5 +1,8 @@
-<?php declare(strict_types=1);
-/*
+<?php
+
+declare(strict_types=1);
+
+/**
  * Copyright (c) Michael Telgmann
  *
  * For the full copyright and license information, please view the LICENSE
@@ -119,6 +122,7 @@ class DokoController extends AbstractController
             }
 
             $gameResult = [];
+
             try {
                 $gameResult = $this->calculateGameResult($pointsFormData, $pointsOfGame, $isBockRound);
             } catch (FourWinnersException | NoWinnerSelectedException | PlayerSelectedTwiceException $e) {
@@ -239,6 +243,7 @@ class DokoController extends AbstractController
                     $maxWinStreak = $winStreak;
                 }
                 $lossStreak = 0;
+
                 continue;
             }
 

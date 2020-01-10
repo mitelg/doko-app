@@ -1,5 +1,8 @@
-<?php declare(strict_types=1);
-/*
+<?php
+
+declare(strict_types=1);
+
+/**
  * Copyright (c) Michael Telgmann
  *
  * For the full copyright and license information, please view the LICENSE
@@ -29,12 +32,13 @@ if ($debug) {
 
     Debug::enable();
 }
-
-if ($trustedProxies = $_SERVER['TRUSTED_PROXIES'] ?? false) {
+$trustedProxies = $_SERVER['TRUSTED_PROXIES'] ?? false;
+if ($trustedProxies) {
     Request::setTrustedProxies(explode(',', $trustedProxies), Request::HEADER_X_FORWARDED_ALL ^ Request::HEADER_X_FORWARDED_HOST);
 }
 
-if ($trustedHosts = $_SERVER['TRUSTED_HOSTS'] ?? false) {
+$trustedHosts = $_SERVER['TRUSTED_HOSTS'] ?? false;
+if ($trustedHosts) {
     Request::setTrustedHosts(explode(',', $trustedHosts));
 }
 
