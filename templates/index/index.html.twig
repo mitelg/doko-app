@@ -4,6 +4,20 @@
     <div>
         <h1>{{ 'title'|trans({}, 'index') }}</h1>
     </div>
+    {% for label, messages in app.flashes %}
+        <div class="alert alert-{{ label }}" role="alert">
+            {%- if messages|length == 1 -%}
+                {{- messages|first -}}
+            {%- else -%}
+                <ul>
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {%- endif -%}
+        </div>
+    {% endfor %}
+
     <div class="form-group btn-group-lg">
         <a href="{{ path('mitelg_dokoapp_doko_showscoreboard') }}" class="btn btn-primary">{{ 'scoreboard'|trans({}, 'buttons') }}</a>
     </div>

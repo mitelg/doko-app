@@ -11,6 +11,6 @@ declare(strict_types=1);
 
 namespace Mitelg\DokoApp\Exception;
 
-class FourWinnersException extends \RuntimeException
+class FourWinnersException extends \LogicException
 {
 }
