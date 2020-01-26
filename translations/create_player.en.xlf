@@ -16,6 +16,11 @@
                 <source>create</source>
                 <target>Create player</target>
             </trans-unit>
+
+            <trans-unit id="3" resname="created">
+                <source>created</source>
+                <target>New player created</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

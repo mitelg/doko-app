@@ -33,13 +33,13 @@ class PlayerController extends AbstractController
     /**
      * @var EntityManagerInterface
      */
-    private $em;
+    private $entityManager;
 
     public function __construct(
-        EntityManagerInterface $em,
+        EntityManagerInterface $entityManager,
         TranslatorInterface $translator
     ) {
-        $this->em = $em;
+        $this->entityManager = $entityManager;
         $this->translator = $translator;
     }
 
@@ -54,14 +54,16 @@ class PlayerController extends AbstractController
         $playerForm = $this->createPlayerForm($request, $player);
 
         if ($playerForm->isSubmitted() && $playerForm->isValid()) {
-            $this->em->persist($player);
-            $this->em->flush();
+            $this->entityManager->persist($player);
+            $this->entityManager->flush();
+
+            $this->addFlash('success', $this->translator->trans('created', [], 'create_player'));
 
             return $this->redirectToRoute('mitelg_dokoapp_doko_index');
         }
 
         return $this->render(
-            'index/create_player.html.twig',
+            'player/create_player.html.twig',
             ['playerForm' => $playerForm->createView()]
         );
     }

@@ -22,8 +22,10 @@ use Mitelg\DokoApp\Entity\Participant;
 use Mitelg\DokoApp\Entity\Player;
 use Mitelg\DokoApp\Entity\Round;
 use Mitelg\DokoApp\Exception\FourWinnersException;
+use Mitelg\DokoApp\Exception\NoPlayersException;
 use Mitelg\DokoApp\Exception\NoWinnerSelectedException;
 use Mitelg\DokoApp\Exception\PlayerSelectedTwiceException;
+use Mitelg\DokoApp\Exception\TooFewPlayersException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -96,7 +98,14 @@ class DokoController extends AbstractController
     {
         /** @var array<array-key, int> $playerIds */
         $playerIds = (array) $this->session->get('playerIds', []);
-        $pointsForm = $this->createPointsForm($playerIds);
+
+        try {
+            $pointsForm = $this->createPointsForm($playerIds);
+        } catch (NoPlayersException | TooFewPlayersException $playersException) {
+            $this->addFlash('danger', $playersException->getMessage());
+
+            return $this->redirectToRoute('mitelg_dokoapp_doko_index');
+        }
 
         $pointsForm->handleRequest($request);
 
@@ -331,8 +340,14 @@ class DokoController extends AbstractController
     private function createPointsForm(array $playerIds): FormInterface
     {
         $players = $this->getPlayers();
+        if ($players === []) {
+            throw new NoPlayersException('No players created yet. Please create at least four players');
+        }
+        if (\count($players) < 4) {
+            throw new TooFewPlayersException('Too few players for a game. Please create at least four players');
+        }
 
-        if (empty($playerIds)) {
+        if ($playerIds === []) {
             foreach (\array_slice($players, 0, 4) as $initialPlayer) {
                 $playerIds[] = $initialPlayer->getId();
             }

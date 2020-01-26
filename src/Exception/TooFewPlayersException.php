@@ -11,6 +11,6 @@ declare(strict_types=1);
 
 namespace Mitelg\DokoApp\Exception;
 
-class PlayerSelectedTwiceException extends \LogicException
+class TooFewPlayersException extends \LogicException
 {
 }
