@@ -22,14 +22,14 @@ for FILE in $SFILES
 if [ "$FILES" != "" ]
 then
     echo "fix code style and update the commit"
-	vendor/bin/ecs check --fix --no-error-table src public -vv
+	vendor/bin/ecs check --fix src public
     git add $FILES
 fi
 
 if [ "$FILES" != "" ]
 then
     echo "Static code analysis with PHPStan..."
-    vendor/bin/phpstan analyse src --level 8 --no-progress
+    vendor/bin/phpstan analyse src
 	if [ $? != 0 ]
 	then
 		echo "Static code analysis failed. Fix the error before commit."
@@ -40,7 +40,7 @@ fi
 if [ "$FILES" != "" ]
 then
     echo "Static code analysis with Psalm..."
-    vendor/bin/psalm --show-info=false
+    vendor/bin/psalm --threads=max --diff --diff-methods --show-info=false
 	if [ $? != 0 ]
 	then
 		echo "Static code analysis failed. Fix the error before commit."
