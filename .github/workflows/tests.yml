@@ -58,6 +58,7 @@ jobs:
 
             -   name: Execute PHPUnit tests
                 run: |
+                    sudo service mysql start
                     composer install --prefer-dist --no-progress --no-suggest
                     bin/console doctrine:database:create
                     bin/console doctrine:schema:create
