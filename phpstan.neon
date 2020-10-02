@@ -1,3 +1,12 @@
 parameters:
     level: 8
     tmpDir: var/cache/phpstan
+    paths:
+        - src
+        - tests
+    symfony:
+        container_xml_path: 'var/cache/dev/Mitelg_DokoApp_KernelDevDebugContainer.xml'
+    ignoreErrors:
+        -   # Services in tests are always public
+            message: '#^Service "[^"]+" is private.$#'
+            path: tests

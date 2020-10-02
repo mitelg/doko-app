@@ -14,7 +14,7 @@ namespace Mitelg\DokoApp\Controller;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\FetchMode;
+use Doctrine\DBAL\Driver\PDO\Statement;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\Pagination\PaginationInterface;
 use Knp\Component\Pager\PaginatorInterface;
@@ -236,7 +236,7 @@ class DokoController extends AbstractController
         $query->bindValue('playerId', $playerId);
         $query->execute();
         /** @var array<array-key, string> $points */
-        $points = $query->fetchAll(FetchMode::COLUMN);
+        $points = $query->fetchFirstColumn();
 
         $maxWinStreak = 0;
         $winStreak = 0;
@@ -334,8 +334,6 @@ class DokoController extends AbstractController
 
     /**
      * @param array<array-key, int> $playerIds
-     *
-     * @return FormInterface<FormTypeInterface>
      */
     private function createPointsForm(array $playerIds): FormInterface
     {
@@ -460,7 +458,10 @@ class DokoController extends AbstractController
                 GROUP BY partner.player_id
                 ORDER BY points DESC;';
 
-        return $this->connection->executeQuery($sql, ['playerId' => $player->getId()])->fetchAll();
+        /** @var Statement $stmt */
+        $stmt = $this->connection->executeQuery($sql, ['playerId' => $player->getId()]);
+
+        return $stmt->fetchAllAssociative();
     }
 
     /**
@@ -477,7 +478,7 @@ class DokoController extends AbstractController
         $sql->bindValue('playerId', $playerId);
         $sql->execute();
         /** @var array{wins:string, loss:string}|false $result */
-        $result = $sql->fetch();
+        $result = $sql->fetchAssociative();
 
         if ($result === false) {
             return ['wins' => 0, 'loss' => 0];

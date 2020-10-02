@@ -16,13 +16,13 @@ jobs:
                 run: composer install --prefer-dist --no-progress --no-suggest
 
             -   name: Check code style
-                run: vendor/bin/ecs check src public
+                run: make fix-cs
 
             -   name: Static code analysis with PHPStan
-                run: vendor/bin/phpstan analyse src
+                run: make phpstan
 
             -   name: Static code analysis with Psalm
-                run: vendor/bin/psalm --threads=max --diff --diff-methods --show-info=false
+                run: make psalm
 
             -   name: Check for insecure libs
                 run: vendor/bin/security-checker security:check
@@ -62,7 +62,7 @@ jobs:
                     composer install --prefer-dist --no-progress --no-suggest
                     bin/console doctrine:database:create
                     bin/console doctrine:schema:create
-                    bin/phpunit
+                    make phpunit
                 env:
                     APP_ENV: test
                     DATABASE_URL: mysql://root:root@127.0.0.1:3306/doko_app

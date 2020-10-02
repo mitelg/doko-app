@@ -1,5 +1,8 @@
-<?php declare(strict_types=1);
-/*
+<?php
+
+declare(strict_types=1);
+
+/**
  * Copyright (c) Michael Telgmann
  *
  * For the full copyright and license information, please view the LICENSE
@@ -53,11 +56,14 @@ class PlayerControllerTest extends WebTestCase
         $result = $builder->getQuery()->getResult();
 
         static::assertCount(1, $result);
+        if (!isset($result[0])) {
+            static::fail('no player');
+        }
 
         $testPlayer = $result[0];
-        self::assertSame(self::TEST_PLAYER_NAME, $testPlayer->getName());
-        self::assertSame(0, $testPlayer->getPoints());
-        self::assertIsInt($testPlayer->getId());
+        static::assertSame(self::TEST_PLAYER_NAME, $testPlayer->getName());
+        static::assertSame(0, $testPlayer->getPoints());
+        static::assertIsInt($testPlayer->getId());
 
         $entityManager->rollback();
     }
