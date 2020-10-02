@@ -13,10 +13,18 @@
 >
     <projectFiles>
         <directory name="src"/>
+        <directory name="tests"/>
         <ignoreFiles>
             <directory name="vendor"/>
+            <file name="src/.preload.php"/>
         </ignoreFiles>
     </projectFiles>
+
+    <plugins>
+        <pluginClass class="Psalm\SymfonyPsalmPlugin\Plugin">
+            <containerXml>var/cache/dev/Mitelg_DokoApp_KernelDevDebugContainer.xml</containerXml>
+        </pluginClass>
+    </plugins>
 
     <issueHandlers>
         <PropertyNotSetInConstructor errorLevel="info"/>
@@ -26,5 +34,11 @@
 
         <!-- Probably conflict with PHPStan -->
         <TooManyTemplateParams errorLevel="info"/>
+
+        <UnsafeInstantiation>
+            <errorLevel type="info">
+                <file name="src/Kernel.php"/>
+            </errorLevel>
+        </UnsafeInstantiation>
     </issueHandlers>
 </psalm>
