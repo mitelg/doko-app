@@ -23,7 +23,7 @@
         "symfony/flex": "1.9.4",
         "symfony/form": "5.1.6",
         "symfony/framework-bundle": "5.1.6",
-        "symfony/http-foundation": "5.1.6",
+        "symfony/http-foundation": "5.4.46",
         "symfony/http-kernel": "5.1.6",
         "symfony/routing": "5.1.6",
         "symfony/translation": "5.1.6",
