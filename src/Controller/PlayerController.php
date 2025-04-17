@@ -61,6 +61,9 @@ class PlayerController extends AbstractController
         );
     }
 
+    /**
+     * @return FormInterface<Player>
+     */
     private function createPlayerForm(Request $request, Player $player): FormInterface
     {
         $buttonTranslation = $this->translator->trans('create', [], 'create_player');

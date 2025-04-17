@@ -23,6 +23,7 @@ use Mitelg\DokoApp\Entity\Round;
 use Mitelg\DokoApp\Exception\FourWinnersException;
 use Mitelg\DokoApp\Exception\NoPlayersException;
 use Mitelg\DokoApp\Exception\NoWinnerSelectedException;
+use Mitelg\DokoApp\Exception\PlayerNotFoundException;
 use Mitelg\DokoApp\Exception\PlayerSelectedTwiceException;
 use Mitelg\DokoApp\Exception\TooFewPlayersException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -80,7 +81,6 @@ class DokoController extends AbstractController
      */
     public function enterPointsAction(Request $request): Response
     {
-        /** @var array<array-key, int> $playerIds */
         $playerIds = (array) $this->session->get('playerIds', []);
 
         try {
@@ -94,7 +94,6 @@ class DokoController extends AbstractController
         $pointsForm->handleRequest($request);
 
         if ($pointsForm->isSubmitted() && $pointsForm->isValid()) {
-            /** @var array<string, bool|int> $pointsFormData */
             $pointsFormData = (array) $pointsForm->getData();
             $pointsOfGame = 0;
             if (isset($pointsFormData['points'])) {
@@ -134,7 +133,6 @@ class DokoController extends AbstractController
 
             $playerIds = [];
             // if data is okay, save points to database
-            /** @var Collection<array-key, Participant> $participants */
             $participants = new ArrayCollection();
             foreach ($gameResult as $item) {
                 $player = $this->getPlayerById($item['playerId']);
@@ -150,8 +148,8 @@ class DokoController extends AbstractController
 
             $this->session->set('playerIds', $playerIds);
 
-            /** @var SubmitButton $saveButton */
             $saveButton = $pointsForm->get('save');
+            assert($saveButton instanceof SubmitButton);
             $nextAction = $saveButton->isClicked() ? 'mitelg_dokoapp_doko_showscoreboard' : 'mitelg_dokoapp_doko_enterpoints';
 
             return $this->redirectToRoute($nextAction);
@@ -219,7 +217,6 @@ class DokoController extends AbstractController
         $query = $this->connection->prepare($sql);
         $query->bindValue('playerId', $playerId);
         $query->execute();
-        /** @var array<array-key, string> $points */
         $points = $query->fetchFirstColumn();
 
         $maxWinStreak = 0;
@@ -257,7 +254,7 @@ class DokoController extends AbstractController
      *
      * @param array<string, int|bool> $formData
      *
-     * @return array<array-key, array{playerId:int, points:int}>
+     * @return array<array{playerId:int, points:int}>
      *
      * @throws FourWinnersException
      * @throws NoWinnerSelectedException
@@ -318,6 +315,7 @@ class DokoController extends AbstractController
 
     /**
      * @param array<array-key, int> $playerIds
+     * @return FormInterface<array<string, int|bool>>
      */
     private function createPointsForm(array $playerIds): FormInterface
     {
@@ -340,7 +338,6 @@ class DokoController extends AbstractController
             $playersArray[$player->getName()] = $player->getId();
         }
 
-        /** @var FormBuilder<FormTypeInterface> $pointsForm */
         $pointsForm = $this->createFormBuilder()
             ->add('points', IntegerType::class)
             ->add('bockRound', CheckboxType::class, ['required' => false]);
@@ -374,16 +371,15 @@ class DokoController extends AbstractController
             ->from(Player::class, 'player')
             ->addOrderBy('player.points', 'DESC');
 
-        /** @var Player[] $result */
-        $result = $builder->getQuery()->getResult();
-
-        return $result;
+        return $builder->getQuery()->getResult();
     }
 
     private function getPlayerById(int $id): Player
     {
-        /** @var Player $player */
         $player = $this->entityManager->getRepository(Player::class)->find($id);
+        if ($player === null) {
+            throw new PlayerNotFoundException($id);
+        }
 
         return $player;
     }

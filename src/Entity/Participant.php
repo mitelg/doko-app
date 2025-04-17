@@ -32,12 +32,12 @@ class Participant
     /**
      * @ORM\ManyToOne(targetEntity="Round", inversedBy="participants")
      */
-    private Round $round;
+    private ?Round $round;
 
     /**
      * @ORM\ManyToOne(targetEntity="Player")
      */
-    private Player $player;
+    private ?Player $player;
 
     /**
      * @ORM\Column(type="integer")
@@ -56,7 +56,7 @@ class Participant
         return $this->id;
     }
 
-    public function getRound(): Round
+    public function getRound(): ?Round
     {
         return $this->round;
     }
@@ -68,7 +68,7 @@ class Participant
         return $this;
     }
 
-    public function getPlayer(): Player
+    public function getPlayer(): ?Player
     {
         return $this->player;
     }

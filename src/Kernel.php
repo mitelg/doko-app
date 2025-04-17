@@ -14,6 +14,7 @@ namespace Mitelg\DokoApp;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
@@ -25,7 +26,7 @@ class Kernel extends BaseKernel
 
     public function registerBundles(): iterable
     {
-        /** @var array<class-string<\Symfony\Component\HttpKernel\Bundle\Bundle>, array> $contents */
+        /** @var array<class-string<Bundle>, array{all?: bool, dev?: bool, test?: bool}> $contents */
         $contents = require $this->getProjectDir() . '/config/bundles.php';
         foreach ($contents as $class => $envs) {
             if (isset($envs['all']) || isset($envs[$this->environment])) {

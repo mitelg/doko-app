@@ -5,4 +5,4 @@ parameters:
         - src
         - tests
     symfony:
-        container_xml_path: 'var/cache/dev/Mitelg_DokoApp_KernelDevDebugContainer.xml'
+        containerXmlPath: 'var/cache/dev/Mitelg_DokoApp_KernelDevDebugContainer.xml'
