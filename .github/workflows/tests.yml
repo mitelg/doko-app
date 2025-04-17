@@ -7,7 +7,12 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            -   uses: actions/checkout@v1
+            -   uses: actions/checkout@v4
+
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: 7.4
 
             -   name: Validate composer.json and composer.lock
                 run: composer validate
@@ -42,7 +47,12 @@ jobs:
                 image: mysql:8.0
 
         steps:
-            -   uses: actions/checkout@v1
+            -   uses: actions/checkout@v4
+
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: 7.4
 
             -   name: Execute PHPUnit tests
                 run: |
