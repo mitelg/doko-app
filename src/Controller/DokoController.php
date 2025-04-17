@@ -213,8 +213,7 @@ class DokoController extends AbstractController
 
         $query = $this->connection->prepare($sql);
         $query->bindValue('playerId', $playerId);
-        $query->execute();
-        $points = $query->fetchFirstColumn();
+        $points = $query->executeQuery()->fetchFirstColumn();
 
         $maxWinStreak = 0;
         $winStreak = 0;
@@ -451,9 +450,8 @@ class DokoController extends AbstractController
 
         $sql = $this->connection->prepare($sql);
         $sql->bindValue('playerId', $playerId);
-        $sql->execute();
         /** @var array{wins:string, loss:string}|false $result */
-        $result = $sql->fetchAssociative();
+        $result = $sql->executeQuery()->fetchAllAssociative();
 
         if ($result === false) {
             return ['wins' => 0, 'loss' => 0];
