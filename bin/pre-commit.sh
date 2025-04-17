@@ -22,7 +22,7 @@ for FILE in $SFILES
 if [ "$FILES" != "" ]
 then
     echo "fix code style and update the commit"
-	vendor/bin/ecs check --fix
+	vendor/bin/php-cs-fixer fix
     git add $FILES
 fi
 
