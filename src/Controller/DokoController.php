@@ -14,7 +14,6 @@ namespace Mitelg\DokoApp\Controller;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\PDO\Statement;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\Pagination\PaginationInterface;
 use Knp\Component\Pager\PaginatorInterface;
@@ -101,7 +100,7 @@ class DokoController extends AbstractController
 
         try {
             $pointsForm = $this->createPointsForm($playerIds);
-        } catch (NoPlayersException | TooFewPlayersException $playersException) {
+        } catch (NoPlayersException|TooFewPlayersException $playersException) {
             $this->addFlash('danger', $playersException->getMessage());
 
             return $this->redirectToRoute('mitelg_dokoapp_doko_index');
@@ -134,7 +133,7 @@ class DokoController extends AbstractController
 
             try {
                 $gameResult = $this->calculateGameResult($pointsFormData, $pointsOfGame, $isBockRound);
-            } catch (FourWinnersException | NoWinnerSelectedException | PlayerSelectedTwiceException $e) {
+            } catch (FourWinnersException|NoWinnerSelectedException|PlayerSelectedTwiceException $e) {
                 $pointsForm->addError(new FormError($e->getMessage()));
             }
 
@@ -273,11 +272,11 @@ class DokoController extends AbstractController
      *
      * @param array<string, int|bool> $formData
      *
+     * @return array<array-key, array{playerId:int, points:int}>
+     *
      * @throws FourWinnersException
      * @throws NoWinnerSelectedException
      * @throws PlayerSelectedTwiceException
-     *
-     * @return array<array-key, array{playerId:int, points:int}>
      */
     private function calculateGameResult(array $formData, int $points, bool $isBockRound): array
     {
@@ -458,10 +457,7 @@ class DokoController extends AbstractController
                 GROUP BY partner.player_id
                 ORDER BY points DESC;';
 
-        /** @var Statement $stmt */
-        $stmt = $this->connection->executeQuery($sql, ['playerId' => $player->getId()]);
-
-        return $stmt->fetchAllAssociative();
+        return $this->connection->executeQuery($sql, ['playerId' => $player->getId()])->fetchAllAssociative();
     }
 
     /**

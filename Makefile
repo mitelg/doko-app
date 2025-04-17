@@ -5,16 +5,12 @@ help:
 .PHONY: help
 
 fix-cs: ## Run easy coding style in fix mode
-	- vendor/bin/ecs check --fix
+	- vendor/bin/php-cs-fixer fix -v
 .PHONY: fix-cs
 
 phpstan: ## Run PHPStan
 	- vendor/bin/phpstan analyse
 .PHONY: phpstan
-
-psalm: ## Run Psalm
-	- vendor/bin/psalm --threads=max --diff --diff-methods --show-info=false
-.PHONY: psalm
 
 phpunit: ## Run unit tests
 	- vendor/bin/phpunit

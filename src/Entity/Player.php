@@ -17,7 +17,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity()
+ *
  * @ORM\Table(name="player")
+ *
  * @UniqueEntity("name")
  */
 class Player
@@ -26,7 +28,9 @@ class Player
      * @var int
      *
      * @ORM\Column(type="integer")
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     protected $id;
@@ -35,7 +39,9 @@ class Player
      * @var string
      *
      * @ORM\Column()
+     *
      * @Assert\NotBlank()
+     *
      * @Assert\Length(min="3")
      */
     protected $name = '';

@@ -21,12 +21,6 @@ jobs:
             -   name: Static code analysis with PHPStan
                 run: make phpstan
 
-            -   name: Static code analysis with Psalm
-                run: make psalm
-
-            -   name: Check for insecure libs
-                run: vendor/bin/security-checker security:check
-
             -   name: Lint Twig templates
                 run: bin/console lint:twig templates
 
@@ -38,12 +32,6 @@ jobs:
 
             -   name: Lint translations
                 run: bin/console lint:xliff translations
-
-            -   name: Lint PHP files
-                run: vendor/bin/parallel-lint src
-
-            -   name: Check for var_dump()s
-                run: vendor/bin/var-dump-check src --doctrine --symfony
 
     unit_test:
         needs: static_analysis

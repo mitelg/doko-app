@@ -17,6 +17,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity()
+ *
  * @ORM\Table(name="round")
  */
 class Round
@@ -25,25 +26,30 @@ class Round
      * @var int
      *
      * @ORM\Column(type="integer")
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     private $id;
 
     /**
      * @var \DateTime
+     *
      * @ORM\Column(type="datetime")
      */
     private $creationDate;
 
     /**
      * @var int
+     *
      * @ORM\Column(type="integer")
      */
     private $points;
 
     /**
      * @var bool
+     *
      * @ORM\Column(type="boolean")
      */
     private $bock;

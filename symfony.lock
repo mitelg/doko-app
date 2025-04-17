@@ -105,15 +105,6 @@
             ".php_cs.dist"
         ]
     },
-    "jakub-onderka/php-parallel-lint": {
-        "version": "v1.0.0"
-    },
-    "jakub-onderka/php-var-dump-check": {
-        "version": "v0.3"
-    },
-    "jean85/pretty-package-versions": {
-        "version": "1.2"
-    },
     "knplabs/knp-components": {
         "version": "v2.3.1"
     },
@@ -128,15 +119,6 @@
     },
     "netresearch/jsonmapper": {
         "version": "v1.6.0"
-    },
-    "nette/finder": {
-        "version": "v2.5.2"
-    },
-    "nette/robot-loader": {
-        "version": "v3.2.1"
-    },
-    "nette/utils": {
-        "version": "v3.1.0"
     },
     "nikic/php-parser": {
         "version": "v4.3.0"
@@ -158,24 +140,6 @@
     },
     "php": {
         "version": "7.3"
-    },
-    "php-cs-fixer/diff": {
-        "version": "v1.3.0"
-    },
-    "phpdocumentor/reflection-common": {
-        "version": "2.0.0"
-    },
-    "phpdocumentor/reflection-docblock": {
-        "version": "4.3.4"
-    },
-    "phpdocumentor/type-resolver": {
-        "version": "1.0.1"
-    },
-    "phpspec/prophecy": {
-        "version": "1.12.1"
-    },
-    "phpstan/phpdoc-parser": {
-        "version": "0.4.2"
     },
     "phpstan/phpstan": {
         "version": "0.12.3"
@@ -220,9 +184,6 @@
     },
     "psr/log": {
         "version": "1.1.2"
-    },
-    "psr/simple-cache": {
-        "version": "1.0.1"
     },
     "sebastian/cli-parser": {
         "version": "1.0.1"
@@ -271,30 +232,6 @@
     },
     "sebastian/version": {
         "version": "3.0.2"
-    },
-    "sensiolabs/security-checker": {
-        "version": "4.0",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "4.0",
-            "ref": "160c9b600564faa1224e8f387d49ef13ceb8b793"
-        },
-        "files": [
-            "config/packages/security_checker.yaml"
-        ]
-    },
-    "slevomat/coding-standard": {
-        "version": "6.0.6"
-    },
-    "squizlabs/php_codesniffer": {
-        "version": "3.0",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "master",
-            "version": "3.0",
-            "ref": "0dc9cceda799fd3a08b96987e176a261028a3709"
-        }
     },
     "symfony/asset": {
         "version": "v5.0.2"
@@ -390,9 +327,6 @@
             "src/Kernel.php"
         ]
     },
-    "symfony/http-client": {
-        "version": "v5.0.2"
-    },
     "symfony/http-client-contracts": {
         "version": "v2.0.1"
     },
@@ -403,9 +337,6 @@
         "version": "v5.0.2"
     },
     "symfony/intl": {
-        "version": "v5.0.2"
-    },
-    "symfony/mime": {
         "version": "v5.0.2"
     },
     "symfony/options-resolver": {
@@ -435,17 +366,11 @@
     "symfony/polyfill-intl-icu": {
         "version": "v1.13.1"
     },
-    "symfony/polyfill-intl-idn": {
-        "version": "v1.13.1"
-    },
     "symfony/polyfill-intl-normalizer": {
         "version": "v1.18.1"
     },
     "symfony/polyfill-mbstring": {
         "version": "v1.13.1"
-    },
-    "symfony/polyfill-php70": {
-        "version": "v1.18.1"
     },
     "symfony/polyfill-php72": {
         "version": "v1.13.1"
@@ -558,32 +483,11 @@
     "symplify/auto-bind-parameter": {
         "version": "v7.2.0"
     },
-    "symplify/autowire-array-parameter": {
-        "version": "v7.2.0"
-    },
-    "symplify/coding-standard": {
-        "version": "v7.2.0"
-    },
-    "symplify/console-color-diff": {
-        "version": "v8.2.1"
-    },
-    "symplify/easy-coding-standard": {
-        "version": "v7.2.0"
-    },
-    "symplify/package-builder": {
-        "version": "v7.2.0"
-    },
     "symplify/parameter-name-guard": {
         "version": "v8.2.1"
     },
     "symplify/phpstan-extensions": {
         "version": "v7.3.9"
-    },
-    "symplify/set-config-resolver": {
-        "version": "v7.2.0"
-    },
-    "symplify/smart-file-system": {
-        "version": "v7.2.0"
     },
     "theseer/tokenizer": {
         "version": "1.2.0"
@@ -593,9 +497,6 @@
     },
     "vimeo/psalm": {
         "version": "3.8.1"
-    },
-    "webmozart/assert": {
-        "version": "1.6.0"
     },
     "webmozart/glob": {
         "version": "4.1.0"

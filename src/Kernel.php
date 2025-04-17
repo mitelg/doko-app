@@ -23,7 +23,7 @@ class Kernel extends BaseKernel
 
     public const CONFIG_EXTS = '.{php,xml,yaml,yml}';
 
-    public function registerBundles()
+    public function registerBundles(): iterable
     {
         /** @var array<class-string<\Symfony\Component\HttpKernel\Bundle\Bundle>, array> $contents */
         $contents = require $this->getProjectDir() . '/config/bundles.php';

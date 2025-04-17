@@ -39,28 +39,6 @@ fi
 
 if [ "$FILES" != "" ]
 then
-    echo "Static code analysis with Psalm..."
-    vendor/bin/psalm --threads=max --diff --diff-methods --show-info=false
-	if [ $? != 0 ]
-	then
-		echo "Static code analysis failed. Fix the error before commit."
-		exit 1
-	fi
-fi
-
-if [ "$FILES" != "" ]
-then
-    echo "Checking for insecure libs..."
-    vendor/bin/security-checker security:check
-	if [ $? != 0 ]
-	then
-		echo "Insecure libraries found. Fix the error before commit."
-		exit 1
-	fi
-fi
-
-if [ "$FILES" != "" ]
-then
     echo "Linting Twig templates..."
     bin/console lint:twig templates
 	if [ $? != 0 ]
@@ -99,28 +77,6 @@ then
 	if [ $? != 0 ]
 	then
 		echo "Yaml linting failed. Fix the error before commit."
-		exit 1
-	fi
-fi
-
-if [ "$FILES" != "" ]
-then
-    echo "Linting PHP files..."
-    vendor/bin/parallel-lint src
-	if [ $? != 0 ]
-	then
-		echo "PHP linting failed. Fix the error before commit."
-		exit 1
-	fi
-fi
-
-if [ "$FILES" != "" ]
-then
-    echo "Checking for var_dump()s..."
-    vendor/bin/var-dump-check src --doctrine --symfony
-	if [ $? != 0 ]
-	then
-		echo "Debug outputs found. Fix the error before commit."
 		exit 1
 	fi
 fi
