@@ -5,7 +5,7 @@
     "description": "small web app to save points for players of the german card game 'Doppelkopf'",
     "keywords": ["symfony", "doppelkopf"],
     "require": {
-        "php": "^7.3 || ^8.0",
+        "php": "^7.4 || ^8.0",
         "ext-iconv": "*",
         "doctrine/collections": "~1.8.0",
         "doctrine/dbal": "~2.13.9",

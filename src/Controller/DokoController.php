@@ -43,30 +43,15 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DokoController extends AbstractController
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
+    private TranslatorInterface $translator;
 
-    /**
-     * @var SessionInterface
-     */
-    private $session;
+    private SessionInterface $session;
 
-    /**
-     * @var PaginatorInterface
-     */
-    private $paginator;
+    private PaginatorInterface $paginator;
 
     public function __construct(
         EntityManagerInterface $entityManager,

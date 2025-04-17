@@ -23,36 +23,28 @@ use Doctrine\ORM\Mapping as ORM;
 class Round
 {
     /**
-     * @var int
-     *
      * @ORM\Column(type="integer")
      *
      * @ORM\Id
      *
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
-    private $id;
+    private int $id;
 
     /**
-     * @var \DateTime
-     *
      * @ORM\Column(type="datetime")
      */
-    private $creationDate;
+    private \DateTime $creationDate;
 
     /**
-     * @var int
-     *
      * @ORM\Column(type="integer")
      */
-    private $points;
+    private int $points;
 
     /**
-     * @var bool
-     *
      * @ORM\Column(type="boolean")
      */
-    private $bock;
+    private bool $bock;
 
     /**
      * @var Participant[]|Collection<array-key, Participant>
