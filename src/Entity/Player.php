@@ -17,35 +17,35 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity()
+ *
  * @ORM\Table(name="player")
+ *
  * @UniqueEntity("name")
  */
 class Player
 {
     /**
-     * @var int
-     *
      * @ORM\Column(type="integer")
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
-    protected $id;
+    protected int $id;
 
     /**
-     * @var string
-     *
      * @ORM\Column()
+     *
      * @Assert\NotBlank()
+     *
      * @Assert\Length(min="3")
      */
-    protected $name = '';
+    protected string $name = '';
 
     /**
-     * @var int
-     *
      * @ORM\Column(type="integer")
      */
-    protected $points = 0;
+    protected int $points = 0;
 
     public function getId(): int
     {

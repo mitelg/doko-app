@@ -12,9 +12,7 @@ declare(strict_types=1);
 namespace Mitelg\DokoApp\Controller;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\PDO\Statement;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\Pagination\PaginationInterface;
 use Knp\Component\Pager\PaginatorInterface;
@@ -24,6 +22,7 @@ use Mitelg\DokoApp\Entity\Round;
 use Mitelg\DokoApp\Exception\FourWinnersException;
 use Mitelg\DokoApp\Exception\NoPlayersException;
 use Mitelg\DokoApp\Exception\NoWinnerSelectedException;
+use Mitelg\DokoApp\Exception\PlayerNotFoundException;
 use Mitelg\DokoApp\Exception\PlayerSelectedTwiceException;
 use Mitelg\DokoApp\Exception\TooFewPlayersException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -31,10 +30,8 @@ use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\FormBuilder;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
-use Symfony\Component\Form\FormTypeInterface;
 use Symfony\Component\Form\SubmitButton;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -44,30 +41,15 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DokoController extends AbstractController
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
+    private TranslatorInterface $translator;
 
-    /**
-     * @var SessionInterface
-     */
-    private $session;
+    private SessionInterface $session;
 
-    /**
-     * @var PaginatorInterface
-     */
-    private $paginator;
+    private PaginatorInterface $paginator;
 
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -96,12 +78,11 @@ class DokoController extends AbstractController
      */
     public function enterPointsAction(Request $request): Response
     {
-        /** @var array<array-key, int> $playerIds */
         $playerIds = (array) $this->session->get('playerIds', []);
 
         try {
             $pointsForm = $this->createPointsForm($playerIds);
-        } catch (NoPlayersException | TooFewPlayersException $playersException) {
+        } catch (NoPlayersException|TooFewPlayersException $playersException) {
             $this->addFlash('danger', $playersException->getMessage());
 
             return $this->redirectToRoute('mitelg_dokoapp_doko_index');
@@ -110,7 +91,6 @@ class DokoController extends AbstractController
         $pointsForm->handleRequest($request);
 
         if ($pointsForm->isSubmitted() && $pointsForm->isValid()) {
-            /** @var array<string, bool|int> $pointsFormData */
             $pointsFormData = (array) $pointsForm->getData();
             $pointsOfGame = 0;
             if (isset($pointsFormData['points'])) {
@@ -134,7 +114,7 @@ class DokoController extends AbstractController
 
             try {
                 $gameResult = $this->calculateGameResult($pointsFormData, $pointsOfGame, $isBockRound);
-            } catch (FourWinnersException | NoWinnerSelectedException | PlayerSelectedTwiceException $e) {
+            } catch (FourWinnersException|NoWinnerSelectedException|PlayerSelectedTwiceException $e) {
                 $pointsForm->addError(new FormError($e->getMessage()));
             }
 
@@ -150,7 +130,6 @@ class DokoController extends AbstractController
 
             $playerIds = [];
             // if data is okay, save points to database
-            /** @var Collection<array-key, Participant> $participants */
             $participants = new ArrayCollection();
             foreach ($gameResult as $item) {
                 $player = $this->getPlayerById($item['playerId']);
@@ -166,8 +145,8 @@ class DokoController extends AbstractController
 
             $this->session->set('playerIds', $playerIds);
 
-            /** @var SubmitButton $saveButton */
             $saveButton = $pointsForm->get('save');
+            assert($saveButton instanceof SubmitButton);
             $nextAction = $saveButton->isClicked() ? 'mitelg_dokoapp_doko_showscoreboard' : 'mitelg_dokoapp_doko_enterpoints';
 
             return $this->redirectToRoute($nextAction);
@@ -234,9 +213,7 @@ class DokoController extends AbstractController
 
         $query = $this->connection->prepare($sql);
         $query->bindValue('playerId', $playerId);
-        $query->execute();
-        /** @var array<array-key, string> $points */
-        $points = $query->fetchFirstColumn();
+        $points = $query->executeQuery()->fetchFirstColumn();
 
         $maxWinStreak = 0;
         $winStreak = 0;
@@ -273,11 +250,11 @@ class DokoController extends AbstractController
      *
      * @param array<string, int|bool> $formData
      *
+     * @return array<array{playerId:int, points:int}>
+     *
      * @throws FourWinnersException
      * @throws NoWinnerSelectedException
      * @throws PlayerSelectedTwiceException
-     *
-     * @return array<array-key, array{playerId:int, points:int}>
      */
     private function calculateGameResult(array $formData, int $points, bool $isBockRound): array
     {
@@ -334,6 +311,8 @@ class DokoController extends AbstractController
 
     /**
      * @param array<array-key, int> $playerIds
+     *
+     * @return FormInterface<array<string, int|bool>>
      */
     private function createPointsForm(array $playerIds): FormInterface
     {
@@ -356,7 +335,6 @@ class DokoController extends AbstractController
             $playersArray[$player->getName()] = $player->getId();
         }
 
-        /** @var FormBuilder<FormTypeInterface> $pointsForm */
         $pointsForm = $this->createFormBuilder()
             ->add('points', IntegerType::class)
             ->add('bockRound', CheckboxType::class, ['required' => false]);
@@ -390,16 +368,15 @@ class DokoController extends AbstractController
             ->from(Player::class, 'player')
             ->addOrderBy('player.points', 'DESC');
 
-        /** @var Player[] $result */
-        $result = $builder->getQuery()->getResult();
-
-        return $result;
+        return $builder->getQuery()->getResult();
     }
 
     private function getPlayerById(int $id): Player
     {
-        /** @var Player $player */
         $player = $this->entityManager->getRepository(Player::class)->find($id);
+        if ($player === null) {
+            throw new PlayerNotFoundException($id);
+        }
 
         return $player;
     }
@@ -458,10 +435,7 @@ class DokoController extends AbstractController
                 GROUP BY partner.player_id
                 ORDER BY points DESC;';
 
-        /** @var Statement $stmt */
-        $stmt = $this->connection->executeQuery($sql, ['playerId' => $player->getId()]);
-
-        return $stmt->fetchAllAssociative();
+        return $this->connection->executeQuery($sql, ['playerId' => $player->getId()])->fetchAllAssociative();
     }
 
     /**
@@ -476,9 +450,8 @@ class DokoController extends AbstractController
 
         $sql = $this->connection->prepare($sql);
         $sql->bindValue('playerId', $playerId);
-        $sql->execute();
         /** @var array{wins:string, loss:string}|false $result */
-        $result = $sql->fetchAssociative();
+        $result = $sql->executeQuery()->fetchAllAssociative();
 
         if ($result === false) {
             return ['wins' => 0, 'loss' => 0];

@@ -17,43 +17,41 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity()
+ *
  * @ORM\Table(name="round")
  */
 class Round
 {
     /**
-     * @var int
-     *
      * @ORM\Column(type="integer")
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
-    private $id;
+    private int $id;
 
     /**
-     * @var \DateTime
      * @ORM\Column(type="datetime")
      */
-    private $creationDate;
+    private \DateTime $creationDate;
 
     /**
-     * @var int
      * @ORM\Column(type="integer")
      */
-    private $points;
+    private int $points;
 
     /**
-     * @var bool
      * @ORM\Column(type="boolean")
      */
-    private $bock;
+    private bool $bock;
 
     /**
-     * @var Participant[]|Collection<array-key, Participant>
+     * @var Collection<int, Participant>
      *
      * @ORM\OneToMany(targetEntity="Participant", mappedBy="round", cascade={"persist", "remove"})
      */
-    private $participants;
+    private Collection $participants;
 
     public function __construct(int $points, bool $isBock)
     {
@@ -105,17 +103,17 @@ class Round
     }
 
     /**
-     * @return Participant[]|Collection<array-key, Participant>
+     * @return Collection<int, Participant>
      */
-    public function getParticipants()
+    public function getParticipants(): Collection
     {
         return $this->participants;
     }
 
     /**
-     * @param Participant[]|Collection<array-key, Participant> $participants
+     * @param Collection<int, Participant> $participants
      */
-    public function setParticipants($participants): Round
+    public function setParticipants(Collection $participants): Round
     {
         $this->participants = $participants;
 

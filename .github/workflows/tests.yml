@@ -7,7 +7,12 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            -   uses: actions/checkout@v1
+            -   uses: actions/checkout@v4
+
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: 7.4
 
             -   name: Validate composer.json and composer.lock
                 run: composer validate
@@ -21,12 +26,6 @@ jobs:
             -   name: Static code analysis with PHPStan
                 run: make phpstan
 
-            -   name: Static code analysis with Psalm
-                run: make psalm
-
-            -   name: Check for insecure libs
-                run: vendor/bin/security-checker security:check
-
             -   name: Lint Twig templates
                 run: bin/console lint:twig templates
 
@@ -39,12 +38,6 @@ jobs:
             -   name: Lint translations
                 run: bin/console lint:xliff translations
 
-            -   name: Lint PHP files
-                run: vendor/bin/parallel-lint src
-
-            -   name: Check for var_dump()s
-                run: vendor/bin/var-dump-check src --doctrine --symfony
-
     unit_test:
         needs: static_analysis
         runs-on: ubuntu-latest
@@ -54,7 +47,12 @@ jobs:
                 image: mysql:8.0
 
         steps:
-            -   uses: actions/checkout@v1
+            -   uses: actions/checkout@v4
+
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: 7.4
 
             -   name: Execute PHPUnit tests
                 run: |

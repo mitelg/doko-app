@@ -1,0 +1,11 @@
+version: 2
+updates:
+    -   package-ecosystem: "composer"
+        directories:
+            - "/"
+        schedule:
+            interval: "weekly"
+    -   package-ecosystem: "github-actions"
+        directory: "/.github/workflows"
+        schedule:
+            interval: "weekly"

@@ -15,39 +15,34 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity()
+ *
  * @ORM\Table(name="participant")
  */
 class Participant
 {
     /**
-     * @var int
-     *
      * @ORM\Column(type="integer")
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
-    private $id;
+    private int $id;
 
     /**
-     * @var Round
-     *
      * @ORM\ManyToOne(targetEntity="Round", inversedBy="participants")
      */
-    private $round;
+    private ?Round $round;
 
     /**
-     * @var Player
-     *
      * @ORM\ManyToOne(targetEntity="Player")
      */
-    private $player;
+    private ?Player $player;
 
     /**
-     * @var int
-     *
      * @ORM\Column(type="integer")
      */
-    private $points;
+    private int $points;
 
     public function __construct(Round $round, Player $player, int $points)
     {
@@ -61,7 +56,7 @@ class Participant
         return $this->id;
     }
 
-    public function getRound(): Round
+    public function getRound(): ?Round
     {
         return $this->round;
     }
@@ -73,7 +68,7 @@ class Participant
         return $this;
     }
 
-    public function getPlayer(): Player
+    public function getPlayer(): ?Player
     {
         return $this->player;
     }

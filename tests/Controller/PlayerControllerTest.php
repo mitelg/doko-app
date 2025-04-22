@@ -9,7 +9,7 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Mitelg\DokoApp\Test;
+namespace Mitelg\DokoApp\Test\Controller;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Mitelg\DokoApp\Entity\Player;
@@ -52,18 +52,14 @@ class PlayerControllerTest extends WebTestCase
             ->where('player.name LIKE :name')
             ->setParameter('name', self::TEST_PLAYER_NAME);
 
-        /** @var Player[] $result */
         $result = $builder->getQuery()->getResult();
 
         static::assertCount(1, $result);
-        if (!isset($result[0])) {
-            static::fail('no player');
-        }
 
         $testPlayer = $result[0];
+        static::assertInstanceOf(Player::class, $testPlayer);
         static::assertSame(self::TEST_PLAYER_NAME, $testPlayer->getName());
         static::assertSame(0, $testPlayer->getPoints());
-        static::assertIsInt($testPlayer->getId());
 
         $entityManager->rollback();
     }
