@@ -34,7 +34,7 @@
         "symfony/yaml": "~5.4.0"
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "3.80.0",
+        "friendsofphp/php-cs-fixer": "3.82.2",
         "kubawerlos/php-cs-fixer-custom-fixers": "3.27.2",
         "phpstan/extension-installer": "1.4.3",
         "phpstan/phpstan": "2.1.17",
