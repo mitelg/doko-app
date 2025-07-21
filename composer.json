@@ -37,7 +37,7 @@
         "friendsofphp/php-cs-fixer": "3.82.2",
         "kubawerlos/php-cs-fixer-custom-fixers": "3.27.2",
         "phpstan/extension-installer": "1.4.3",
-        "phpstan/phpstan": "2.1.17",
+        "phpstan/phpstan": "2.1.18",
         "phpstan/phpstan-deprecation-rules": "2.0.3",
         "phpstan/phpstan-doctrine": "2.0.4",
         "phpstan/phpstan-phpunit": "2.0.6",
