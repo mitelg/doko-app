@@ -35,7 +35,7 @@
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "3.84.0",
-        "kubawerlos/php-cs-fixer-custom-fixers": "3.27.2",
+        "kubawerlos/php-cs-fixer-custom-fixers": "3.31.1",
         "phpstan/extension-installer": "1.4.3",
         "phpstan/phpstan": "2.1.20",
         "phpstan/phpstan-deprecation-rules": "2.0.3",

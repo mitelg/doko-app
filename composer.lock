@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dfd66c31e4f7e7ad6814d83b7d78ad27",
+    "content-hash": "d826fbd89425ec0a8d07e1571e8fc12b",
     "packages": [
         {
             "name": "composer/package-versions-deprecated",
@@ -6251,22 +6251,22 @@
         },
         {
             "name": "kubawerlos/php-cs-fixer-custom-fixers",
-            "version": "v3.27.2",
+            "version": "v3.31.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kubawerlos/php-cs-fixer-custom-fixers.git",
-                "reference": "09a29566891d4214da2c1c429e7857f40397ef50"
+                "reference": "207182775ff9121dafc1c8c3b28e9d3f2f567fe1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kubawerlos/php-cs-fixer-custom-fixers/zipball/09a29566891d4214da2c1c429e7857f40397ef50",
-                "reference": "09a29566891d4214da2c1c429e7857f40397ef50",
+                "url": "https://api.github.com/repos/kubawerlos/php-cs-fixer-custom-fixers/zipball/207182775ff9121dafc1c8c3b28e9d3f2f567fe1",
+                "reference": "207182775ff9121dafc1c8c3b28e9d3f2f567fe1",
                 "shasum": ""
             },
             "require": {
                 "ext-filter": "*",
                 "ext-tokenizer": "*",
-                "friendsofphp/php-cs-fixer": "^3.61.1",
+                "friendsofphp/php-cs-fixer": "^3.84",
                 "php": "^7.4 || ^8.0"
             },
             "require-dev": {
@@ -6291,7 +6291,7 @@
             "description": "A set of custom fixers for PHP CS Fixer",
             "support": {
                 "issues": "https://github.com/kubawerlos/php-cs-fixer-custom-fixers/issues",
-                "source": "https://github.com/kubawerlos/php-cs-fixer-custom-fixers/tree/v3.27.2"
+                "source": "https://github.com/kubawerlos/php-cs-fixer-custom-fixers/tree/v3.31.1"
             },
             "funding": [
                 {
@@ -6299,7 +6299,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-06-28T11:13:24+00:00"
+            "time": "2025-07-21T18:19:38+00:00"
         },
         {
             "name": "myclabs/deep-copy",
