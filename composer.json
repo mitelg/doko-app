@@ -10,7 +10,7 @@
         "doctrine/collections": "~1.8.0",
         "doctrine/dbal": "~2.13.9",
         "doctrine/doctrine-bundle": "~2.7.0",
-        "doctrine/doctrine-migrations-bundle": "~2.2.3",
+        "doctrine/doctrine-migrations-bundle": "~3.5.0",
         "doctrine/orm": "~2.20.2",
         "knplabs/knp-components": "~2.5.0",
         "knplabs/knp-paginator-bundle": "~5.9.0",
