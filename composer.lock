@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6bb163021b1f4ef74b1d685dfb013182",
+    "content-hash": "69e68275874932498efe83e242b36f92",
     "packages": [
         {
             "name": "composer/package-versions-deprecated",
@@ -6256,16 +6256,16 @@
         },
         {
             "name": "friendsofphp/php-cs-fixer",
-            "version": "v3.95.10",
+            "version": "v3.95.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer.git",
-                "reference": "93e1ab3e1f153024bd3ab23c8a349556063c6f17"
+                "reference": "ea941114a002eb5e5876f190223deec1066c482c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/93e1ab3e1f153024bd3ab23c8a349556063c6f17",
-                "reference": "93e1ab3e1f153024bd3ab23c8a349556063c6f17",
+                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/ea941114a002eb5e5876f190223deec1066c482c",
+                "reference": "ea941114a002eb5e5876f190223deec1066c482c",
                 "shasum": ""
             },
             "require": {
@@ -6299,13 +6299,13 @@
             "require-dev": {
                 "facile-it/paraunit": "^1.3.1 || ^2.11.0",
                 "infection/infection": "^0.32.7",
-                "justinrainbow/json-schema": "^6.9.0",
+                "justinrainbow/json-schema": "^6.10.0",
                 "keradus/cli-executor": "^2.3",
                 "mikey179/vfsstream": "^1.6.12",
                 "php-coveralls/php-coveralls": "^2.9.1",
                 "php-cs-fixer/phpunit-constraint-isidenticalstring": "^1.8",
                 "php-cs-fixer/phpunit-constraint-xmlmatchesxsd": "^1.8",
-                "phpunit/phpunit": "^9.6.34 || ^10.5.63 || ^11.5.55",
+                "phpunit/phpunit": "^9.6.35 || ^10.5.64 || ^11.5.56",
                 "symfony/polyfill-php85": "^1.38",
                 "symfony/var-dumper": "^5.4.48 || ^6.4.36 || ^7.4.8 || ^8.1.0",
                 "symfony/yaml": "^5.4.53 || ^6.4.41 || ^7.4.13 || ^8.1.0"
@@ -6349,7 +6349,7 @@
             ],
             "support": {
                 "issues": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/issues",
-                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.95.10"
+                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.95.13"
             },
             "funding": [
                 {
@@ -6357,7 +6357,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-06-19T14:45:22+00:00"
+            "time": "2026-07-10T09:23:21+00:00"
         },
         {
             "name": "kubawerlos/php-cs-fixer-custom-fixers",
