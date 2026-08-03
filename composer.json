@@ -38,7 +38,7 @@
         "kubawerlos/php-cs-fixer-custom-fixers": "3.37.2",
         "phpstan/extension-installer": "1.4.3",
         "phpstan/phpstan": "2.2.2",
-        "phpstan/phpstan-deprecation-rules": "2.0.4",
+        "phpstan/phpstan-deprecation-rules": "2.0.5",
         "phpstan/phpstan-doctrine": "2.0.27",
         "phpstan/phpstan-phpunit": "2.0.16",
         "phpstan/phpstan-symfony": "2.0.20",
